@@ -49,6 +49,12 @@ public class BoardController {
         System.out.println("adminmainBoard()");
         return "adminmainBoard";
     }
+    
+    @RequestMapping(value = "/usermainBoard.do")
+    public String usermainBoard() {
+        return "usermainBoard";
+    }
+    
 
     // 강사의 ID를 통해서 자신만의 강의 목록 조회
     @RequestMapping(value = "/teachermainBoard.do")
@@ -59,9 +65,13 @@ public class BoardController {
                 return "redirect:/loginBoard.do"; // 로그인 페이지로 리다이렉트
             }
 
-            // DAO를 통해 강사 ID로 수업 목록 가져오기
+            // ✅ 강사가 개설한 수업 목록 조회
             List<LessonDo> lessonList = boardDao.getLessonListByTeacherId(teacherId);
             model.addAttribute("lessonList", lessonList);
+
+            // ✅ 강사의 강의에 신청한 학생 목록 조회
+            List<LessonrequestsDo> responseList = boardDao.getLessonRequestsByTeacherId(teacherId);
+            model.addAttribute("responseList", responseList);
 
             return "teachermainBoard";
         } catch (Exception e) {
@@ -75,26 +85,44 @@ public class BoardController {
     @RequestMapping(value = "/teacherMain.do")
     public String teacherMain(HttpSession session, Model model) {
         try {
-            // 세션에서 로그인한 강사 ID 가져오기
             String teacherId = (String) session.getAttribute("loginId");
+
             if (teacherId == null) {
-                System.out.println("❌ teacherId가 NULL입니다! 로그인 페이지로 리다이렉트");
+                System.out.println("❌ teacherId가 NULL입니다! 로그인 필요.");
                 return "redirect:/loginBoard.do";
             }
 
             System.out.println("✅ teacherMain.do 실행됨! teacherId: " + teacherId);
 
-            // ✅ 강사가 개설한 강의 목록 조회
+            // ✅ 강사가 개설한 수업 목록 조회
             List<LessonDo> lessonList = boardDao.getLessonListByTeacherId(teacherId);
             System.out.println("📋 조회된 강의 목록: " + lessonList);
 
-            // 🚀 `getLessonRequestsByTeacherId()` 실행 여부 확인
+            // ✅ `getLessonRequestsByTeacherId()` 실행 여부 확인
             System.out.println("🚀 getLessonRequestsByTeacherId() 실행 전 - teacherId: " + teacherId);
+            
+            // 🚀 DAO에서 조회 실행
             List<LessonrequestsDo> responseList = boardDao.getLessonRequestsByTeacherId(teacherId);
+            
             System.out.println("🚀 getLessonRequestsByTeacherId() 실행 완료");
-            System.out.println("📋 조회된 수강 요청 목록: " + responseList);
 
-            // JSP에 데이터 전달
+            // ❗❗ responseList 내용 상세 로그 출력 ❗❗
+            if (responseList == null) {
+                System.out.println("❌ responseList 자체가 NULL입니다!");
+            } else if (responseList.isEmpty()) {
+                System.out.println("❌ 조회된 수강 요청 목록이 없습니다!");
+            } else {
+                System.out.println("📋 조회된 수강 요청 목록:");
+                for (LessonrequestsDo request : responseList) {
+                    System.out.println("🔹 요청 ID: " + request.getUserId() +
+                            " | 수업명: " + request.getLessonName() +
+                            " | 신청자: " + request.getUserName() + " (" + request.getUserId() + ")" +
+                            " | 선택 시간: " + request.getSelectedTime() +
+                            " | 상태: " + request.getRequestsStatus());
+                }
+            }
+
+            // 데이터를 JSP로 전달
             model.addAttribute("lessonList", lessonList);
             model.addAttribute("responseList", responseList);
 
@@ -106,6 +134,11 @@ public class BoardController {
             return "errorPage";
         }
     }
+
+
+
+
+
 
 
 
@@ -334,6 +367,14 @@ public class BoardController {
     }
 
 
+    // 정보 수정 페이지
+    
+    
+    // 사용자 - 예약 확인 페이지
+    
+    
+    // 게시판 글 작성 페이지
+    
 
 
 

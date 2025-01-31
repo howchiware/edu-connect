@@ -42,6 +42,9 @@
                         <span class="me-3">반갑습니다, ${sessionScope.loginName} 님!</span>
                         <button type="button" class="btn btn-outline-danger" onclick="location.href='logout.do'">로그아웃</button>
                     </div>
+					<div>
+						<button type="buttom" onclick="location.href='usermainBoard.do'">관리 페이지</button>
+					<div>
                 </c:otherwise>
             </c:choose>
         </div>

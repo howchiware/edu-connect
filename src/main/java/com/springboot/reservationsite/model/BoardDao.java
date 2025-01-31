@@ -165,7 +165,7 @@ public class BoardDao {
 	
 	
 	public List<LessonrequestsDo> getLessonRequestsByTeacherId(String teacherId) {
-	    String sql = "SELECT id, lessonId, lessonName, userId, userName, requestsStatus, requestDate, selectedTime " +
+	    String sql = "SELECT lessonId, lessonName, userId, userName, requestsStatus, requestDate, selectedTime " +
 	                 "FROM lessonrequests WHERE teacherId = ?";
 
 	    System.out.println("📋 실행할 SQL: " + sql);
@@ -176,7 +176,6 @@ public class BoardDao {
 	            @Override
 	            public LessonrequestsDo mapRow(ResultSet rs, int rowNum) throws SQLException {
 	                LessonrequestsDo request = new LessonrequestsDo();
-	                request.setId(rs.getInt("id"));
 	                request.setLessonId(rs.getInt("lessonId"));
 	                request.setLessonName(rs.getString("lessonName"));
 	                request.setUserId(rs.getString("userId"));
@@ -196,6 +195,8 @@ public class BoardDao {
 	        return new ArrayList<>();
 	    }
 	}
+
+
 
 
 
