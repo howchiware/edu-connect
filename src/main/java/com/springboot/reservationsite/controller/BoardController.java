@@ -51,8 +51,21 @@ public class BoardController {
     }
     
     @RequestMapping(value = "/usermainBoard.do")
-    public String usermainBoard() {
+    public String usermainBoard(HttpSession session, Model model) {
+    	try {
+    		String userId = (String) session.getAttribute("loginId");
+    		if (userId == null) {
+    			return "redirect:/mainBoard.do";
+    		}
+    		
+    		List<LessonrequestsDo> userlessonList = boardDao.getLessonListByUserId(userId);
+    		model.addAttribute("userlessonList", userlessonList);
         return "usermainBoard";
+    }catch (Exception e) {
+    	 System.err.println("Error in usermainBoard: " + e.getMessage());
+         model.addAttribute("error", "페이지를 불러오는 중 문제가 발생했습니다.");
+         return "errorPage";
+	}
     }
     
 
@@ -62,7 +75,7 @@ public class BoardController {
         try {
             String teacherId = (String) session.getAttribute("loginId");
             if (teacherId == null) {
-                return "redirect:/loginBoard.do"; // 로그인 페이지로 리다이렉트
+                return "redirect:/mainBoard.do"; // 로그인 페이지로 리다이렉트
             }
 
             // ✅ 강사가 개설한 수업 목록 조회
@@ -365,6 +378,41 @@ public class BoardController {
         }
         return response;
     }
+    
+
+    
+    
+    @PostMapping("/updateRequestStatus")
+    @ResponseBody
+    public Map<String, Object> updateRequestStatus(@RequestBody Map<String, Object> requestData) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            int num = (int) requestData.get("num");  
+            if (num == 0) {
+                throw new IllegalArgumentException("❌ 잘못된 요청: num 값이 0입니다.");
+            }
+
+            String status = (String) requestData.get("status");
+            System.out.println("📥 상태 변경 요청 - num: " + num + ", status: " + status);
+
+            boolean isUpdated = boardDao.updateRequestStatus(num, LessonrequestsDo.RequestsStatus.valueOf(status));
+
+            if (isUpdated) {
+                response.put("success", true);
+            } else {
+                response.put("success", false);
+                response.put("error", "상태 변경에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            System.err.println("❌ 상태 변경 중 오류 발생: " + e.getMessage());
+        }
+        return response;
+    }
+
+
+
 
 
     // 정보 수정 페이지

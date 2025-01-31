@@ -9,7 +9,7 @@ public class LessonrequestsDo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int num;
 
     @Column(nullable = false)
     private String userId;
@@ -19,6 +19,9 @@ public class LessonrequestsDo {
 
     @Column(nullable = false)
     private String teacherId;
+    
+    @Column(nullable = false)
+    private String teacherName;
 
     @Column(nullable = false)
     private String lessonName;
@@ -46,58 +49,115 @@ public class LessonrequestsDo {
         this.requestsStatus = RequestsStatus.PENDING;
     }
 
-    // 모든 필드를 초기화하는 생성자
-    public LessonrequestsDo(int id, String userId, String userName, String teacherId, String lessonName, int lessonId, RequestsStatus requestsStatus, LocalDateTime requestDate, String selectedTime) {
-        this.id = id;
-        this.userId = userId;
-        this.userName = userName;
-        this.teacherId = teacherId;
-        this.lessonName = lessonName;
-        this.lessonId = lessonId;
-        this.requestsStatus = requestsStatus;
-        this.requestDate = requestDate;
-        this.selectedTime = selectedTime;
-    }
+	public int getNum() {
+		return num;
+	}
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+	public void setNum(int num) {
+		this.num = num;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getTeacherId() {
+		return teacherId;
+	}
+
+	public void setTeacherId(String teacherId) {
+		this.teacherId = teacherId;
+	}
+
+	public String getTeacherName() {
+		return teacherName;
+	}
+
+	public void setTeacherName(String teacherName) {
+		this.teacherName = teacherName;
+	}
+
+	public String getLessonName() {
+		return lessonName;
+	}
+
+	public void setLessonName(String lessonName) {
+		this.lessonName = lessonName;
+	}
+
+	public int getLessonId() {
+		return lessonId;
+	}
+
+	public void setLessonId(int lessonId) {
+		this.lessonId = lessonId;
+	}
+
+	public RequestsStatus getRequestsStatus() {
+		return requestsStatus;
+	}
+
+	public void setRequestsStatus(RequestsStatus requestsStatus) {
+		this.requestsStatus = requestsStatus;
+	}
+
+	public LocalDateTime getRequestDate() {
+		return requestDate;
+	}
+
+	public void setRequestDate(LocalDateTime requestDate) {
+		this.requestDate = requestDate;
+	}
+
+	public String getSelectedTime() {
+		return selectedTime;
+	}
+
+	public void setSelectedTime(String selectedTime) {
+		this.selectedTime = selectedTime;
+	}
+
+	@Override
+	public String toString() {
+		return "LessonrequestsDo [num=" + num + ", userId=" + userId + ", userName=" + userName + ", teacherId="
+				+ teacherId + ", teacherName=" + teacherName + ", lessonName=" + lessonName + ", lessonId=" + lessonId
+				+ ", requestsStatus=" + requestsStatus + ", requestDate=" + requestDate + ", selectedTime="
+				+ selectedTime + "]";
+	}
+
+	public LessonrequestsDo(int num, String userId, String userName, String teacherId, String teacherName,
+			String lessonName, int lessonId, RequestsStatus requestsStatus, LocalDateTime requestDate,
+			String selectedTime) {
+		super();
+		this.num = num;
+		this.userId = userId;
+		this.userName = userName;
+		this.teacherId = teacherId;
+		this.teacherName = teacherName;
+		this.lessonName = lessonName;
+		this.lessonId = lessonId;
+		this.requestsStatus = requestsStatus;
+		this.requestDate = requestDate;
+		this.selectedTime = selectedTime;
+	}
+
+	
+
+   
     
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
-
-    public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
-
-    public String getTeacherId() { return teacherId; }
-    public void setTeacherId(String teacherId) { this.teacherId = teacherId; }
-
-    public String getLessonName() { return lessonName; }
-    public void setLessonName(String lessonName) { this.lessonName = lessonName; }
-
-    public int getLessonId() { return lessonId; }
-    public void setLessonId(int lessonId) { this.lessonId = lessonId; }
-
-    public RequestsStatus getRequestsStatus() { return requestsStatus; }
-    public void setRequestsStatus(RequestsStatus requestsStatus) { this.requestsStatus = requestsStatus; }
-
-    public LocalDateTime getRequestDate() { return requestDate; }
-    public void setRequestDate(LocalDateTime requestDate) { this.requestDate = requestDate; }
-
-    public String getSelectedTime() { return selectedTime; }
-    public void setSelectedTime(String selectedTime) { this.selectedTime = selectedTime; }
-
-    @Override
-    public String toString() {
-        return "LessonrequestsDo{" +
-                "id=" + id +
-                ", userId='" + userId + '\'' +
-                ", userName='" + userName + '\'' +
-                ", teacherId='" + teacherId + '\'' +
-                ", lessonName='" + lessonName + '\'' +
-                ", lessonId=" + lessonId +
-                ", requestsStatus=" + requestsStatus +
-                ", requestDate=" + requestDate +
-                ", selectedTime='" + selectedTime + '\'' +
-                '}';
-    }
+    
+    
+    
 }

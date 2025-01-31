@@ -69,11 +69,11 @@
                 </thead>
                 <tbody>
                     <!-- ✅ `responseList`를 기준으로 수강 신청 정보 표시 -->
-                    <c:forEach var="response" items="${responseList}">
+                    <c:forEach var="userrequest" items="${userrequestlist}">
                         <tr>
-                            <td>${response.lessonName}</td>
-                            <td>${response.teacherName}</td>
-                            <td>${response.selectedTime}</td>
+                            <td>${userrequest.lessonName}</td>
+                            <td>${userrequest.teacherId}</td>
+                            <td>${userrequest.selectedTime}</td>
 							<td>
 								<button class="btn btn-primary btn-sm" >상세보기</button>
 							</td>
@@ -105,12 +105,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <c:forEach var="response" items="${responseList}">
+                        <c:forEach var="userlesson" items="${userlessonList}">
                             <tr>
-                                <td>${response.title}</td>
-                                <td>${response.teacherName}</td>
-                                <td>${response.selectedTime}</td>
-								<td>${response.requestsStatus}</td>
+                                <td>${userlesson.lessonName}</td>
+                                <td>${userlesson.teacherId}</td>
+                                <td>${userlesson.selectedTime}</td>
+								<td>${userlesson.requestsStatus}</td>
 								<td>
 									<button class="btn btn-primary btn-sm" >취소</button>
 								</td>

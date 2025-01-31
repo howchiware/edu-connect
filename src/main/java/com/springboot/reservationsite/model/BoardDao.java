@@ -80,13 +80,14 @@ public class BoardDao {
 	public void addLessonRequest(LessonrequestsDo lessonRequest) {
 	    System.out.println("addLessonRequest() start");
 
-	    String sql = "INSERT INTO lessonrequests (userId, userName, teacherId, lessonName, lessonId, requestsStatus, requestDate, selectedTime) " +
-	            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+	    String sql = "INSERT INTO lessonrequests (userId, userName, teacherId, teacherName, lessonName, lessonId, requestsStatus, requestDate, selectedTime) " +
+	            "VALUES (?, ?, ?, ?, ?, ?, ?,?, ?)";
 	    try {
 	        jdbcTemplate.update(sql,
 	            lessonRequest.getUserId(),
 	            lessonRequest.getUserName(),
 	            lessonRequest.getTeacherId(),
+	            lessonRequest.getTeacherName(),
 	            lessonRequest.getLessonName(),
 	            lessonRequest.getLessonId(),
 	            lessonRequest.getRequestsStatus().name(),
@@ -142,6 +143,57 @@ public class BoardDao {
 		}
 	}
 
+	public boolean updateRequestStatus(int num, LessonrequestsDo.RequestsStatus status) {
+	    String sql = "UPDATE lessonrequests SET requestsStatus = ? WHERE num = ?";
+	    try {
+	        int rowsAffected = jdbcTemplate.update(sql, status.toString(), num);
+	        return rowsAffected > 0;
+	    } catch (Exception e) {
+	        System.err.println("❌ SQL 오류: " + e.getMessage());
+	        return false;
+	    }
+	}
+
+
+
+	
+	//
+		public List<LessonrequestsDo> getLessonListByUserId(String userId) {
+			System.out.println("getLessonListByUserId() start");
+			System.out.println("Fetching lessons for userId: " + userId);
+
+			String sql = "SELECT num, userId, userName, lessonId, lessonName, teacherId, teacherName, selectedTime, requestsStatus, requestDate FROM lessonrequests WHERE userId = ?";
+
+
+			try {
+				List<LessonrequestsDo> userrequestlist = jdbcTemplate.query(sql, new Object[] { userId }, new RowMapper<LessonrequestsDo>() {
+					@Override
+					public LessonrequestsDo mapRow(ResultSet rs, int rowNum) throws SQLException {
+						LessonrequestsDo lesson = new LessonrequestsDo();
+						lesson.setNum(rs.getInt("num"));
+						lesson.setUserId(rs.getString("userId"));
+						lesson.setUserName(rs.getString("userName"));
+						lesson.setTeacherId(rs.getString("teacherId"));
+						lesson.setTeacherName(rs.getString("teacherName"));
+						lesson.setLessonName(rs.getString("lessonName"));
+						lesson.setRequestsStatus(LessonrequestsDo.RequestsStatus.valueOf(rs.getString("requestsStatus")));
+						lesson.setRequestDate(rs.getTimestamp("requestDate").toLocalDateTime());
+						lesson.setSelectedTime(rs.getString("selectedTime"));
+						return lesson;
+					}
+				});
+
+				// 조회된 결과 로그로 출력
+				System.out.println("user lessons: " + userrequestlist);
+
+				return userrequestlist;
+			} catch (Exception e) {
+				System.err.println("Error fetching lessons by userId: " + e.getMessage());
+				e.printStackTrace();
+				throw e; // 예외를 다시 던져 호출한 곳에서 처리할 수 있도록 설정
+			}
+		}
+
 	// 강의 삭제
 	public void deleteLesson(int lessonId) {
 		System.out.println("deleteLesson() start");
@@ -165,17 +217,16 @@ public class BoardDao {
 	
 	
 	public List<LessonrequestsDo> getLessonRequestsByTeacherId(String teacherId) {
-	    String sql = "SELECT lessonId, lessonName, userId, userName, requestsStatus, requestDate, selectedTime " +
-	                 "FROM lessonrequests WHERE teacherId = ?";
-
+	    String sql = "SELECT num, lessonId, lessonName, userId, userName, requestsStatus, requestDate, selectedTime FROM lessonrequests WHERE teacherId = ?";
 	    System.out.println("📋 실행할 SQL: " + sql);
 	    System.out.println("📋 teacherId 값: " + teacherId);
 
 	    try {
-	        List<LessonrequestsDo> results = jdbcTemplate.query(sql, new Object[]{teacherId}, new RowMapper<LessonrequestsDo>() {
+	        return jdbcTemplate.query(sql, new Object[]{teacherId}, new RowMapper<LessonrequestsDo>() {
 	            @Override
 	            public LessonrequestsDo mapRow(ResultSet rs, int rowNum) throws SQLException {
 	                LessonrequestsDo request = new LessonrequestsDo();
+	                request.setNum(rs.getInt("num"));  // ✅ num 값 명확하게 매핑
 	                request.setLessonId(rs.getInt("lessonId"));
 	                request.setLessonName(rs.getString("lessonName"));
 	                request.setUserId(rs.getString("userId"));
@@ -186,15 +237,12 @@ public class BoardDao {
 	                return request;
 	            }
 	        });
-
-	        System.out.println("📋 조회된 수강 요청 목록: " + results);
-	        return results;
 	    } catch (Exception e) {
-	        System.err.println("❌ SQL 실행 중 오류 발생: " + e.getMessage());
-	        e.printStackTrace();
-	        return new ArrayList<>();
+	        System.err.println("❌ 수강 요청 목록 조회 중 오류 발생: " + e.getMessage());
+	        return new ArrayList<>(); // 오류 발생 시 빈 리스트 반환
 	    }
 	}
+
 
 
 
