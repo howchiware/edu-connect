@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.springboot.reservationsite.model.BoardDao;
+import com.springboot.reservationsite.model.EnquirytableBoardDo;
 import com.springboot.reservationsite.model.LessonDo;
 import com.springboot.reservationsite.model.UserBoardDo;
 
@@ -33,5 +34,10 @@ public class BoardServiceImpl implements BoardService {
 		return bdao.getBoardList();
 	}
 	
+	@Override
+	public List<EnquirytableBoardDo> getEnquiriesByTeacherId(String teacherId) {
+	    return bdao.getEnquiriesByTeacherId(teacherId);
+	}
+
 
 }

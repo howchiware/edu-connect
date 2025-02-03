@@ -45,7 +45,36 @@
         }
     </style>
 </head>
+
+<script>
+	function cancelRequest(num) {
+	    if (confirm("정말로 신청을 취소하시겠습니까?")) {
+	        fetch('/cancelLessonRequest.do', {
+	            method: 'POST',
+	            headers: {
+	                'Content-Type': 'application/x-www-form-urlencoded'
+	            },
+	            body: 'num=' + encodeURIComponent(num)
+	        }).then(response => response.json())
+	          .then(data => {
+	              if (data.success) {
+	                  alert("신청이 취소되었습니다.");
+	                  location.reload();  // 화면 새로고침
+	              } else {
+	                  alert("취소에 실패했습니다: " + data.error);
+	              }
+	          }).catch(error => {
+	              console.error("오류 발생:", error);
+	          });
+	    }
+	}
+
+
+	
+</script>
+
 <body>
+	
     <div class="header">
         <h1>User Dashboard</h1>
         <div class="d-flex align-items-center">
@@ -55,7 +84,7 @@
     </div>
 
     <div class="container">
-        <!-- 📌 수강 요청 목록 -->
+        <!-- 📌 수강 목록 (ACCEPTED 상태만 표시) -->
         <div class="main-content">
             <h2>수강 목록</h2>
             <table class="table table-striped">
@@ -68,20 +97,20 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- ✅ `responseList`를 기준으로 수강 신청 정보 표시 -->
-                    <c:forEach var="userrequest" items="${userrequestlist}">
-                        <tr>
-                            <td>${userrequest.lessonName}</td>
-                            <td>${userrequest.teacherId}</td>
-                            <td>${userrequest.selectedTime}</td>
-							<td>
-								<button class="btn btn-primary btn-sm" >상세보기</button>
-							</td>
-                        </tr>
-                    </c:forEach>
+					<c:forEach var="lesson" items="${enrolledLessons}">
+					    <tr>
+					        <td>${lesson.lessonName}</td>
+					        <td>${lesson.teacherName}</td>
+					        <td>${lesson.selectedTime}</td>
+								<td>
+									<p>lessonId: ${lesson.lessonId}</p>
+									<button type="button" class="btn btn-outline-secondary" onclick="location.href='detaillessonBoard.do?num=${lesson.lessonId}'">상세보기</button>
+						        </td>
 
-                    <!-- 수강 요청이 없을 경우 -->
-                    <c:if test="${empty responseList}">
+					    </tr>
+					</c:forEach>
+
+                    <c:if test="${empty enrolledLessons}">
                         <tr>
                             <td colspan="4" class="text-center">수강 중인 수업이 없습니다.</td>
                         </tr>
@@ -90,32 +119,39 @@
             </table>
         </div>
 
-        <!-- 📌 진행 중인 수업 -->
+        <!-- 📌 수강 신청 목록 (PENDING & REJECTED 상태 표시) -->
         <div class="sidebar">
             <div class="sidebar-item">
-                <h2>수강 신청 목록</h2>
+                <h2>신청 목록</h2>
                 <table class="table">
                     <thead>
                         <tr>
                             <th>수업명</th>
                             <th>강사명</th>
                             <th>시간대</th>
-							<th>신청 상태</th>
-							<th> </th>
+                            <th>신청 상태</th>
+                            <th> </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <c:forEach var="userlesson" items="${userlessonList}">
+                        <c:forEach var="lesson" items="${pendingAndRejectedLessons}">
                             <tr>
-                                <td>${userlesson.lessonName}</td>
-                                <td>${userlesson.teacherId}</td>
-                                <td>${userlesson.selectedTime}</td>
-								<td>${userlesson.requestsStatus}</td>
-								<td>
-									<button class="btn btn-primary btn-sm" >취소</button>
-								</td>
+                                <td>${lesson.lessonName}</td>
+                                <td>${lesson.teacherName}</td>
+                                <td>${lesson.selectedTime}</td>
+                                <td>${lesson.requestsStatus}</td>
+                                <td>
+                                    <c:if test="${lesson.requestsStatus == 'PENDING'}">
+                                        <button class="btn btn-danger btn-sm" onclick="cancelRequest(${lesson.num})">취소</button>
+                                    </c:if>
+                                </td>
                             </tr>
                         </c:forEach>
+                        <c:if test="${empty pendingAndRejectedLessons}">
+                            <tr>
+                                <td colspan="5" class="text-center">수강 신청 내역이 없습니다.</td>
+                            </tr>
+                        </c:if>
                     </tbody>
                 </table>
             </div>
@@ -137,10 +173,15 @@
                                 <td>${inquiry.userName}</td>
                                 <td>${inquiry.message}</td>
                                 <td>
-                                    <button class="btn btn-primary btn-sm" onclick="replyInquiry(${inquiry.id})">답변</button>
+                                    <button class="btn btn-primary btn-sm">답변</button>
                                 </td>
                             </tr>
                         </c:forEach>
+                        <c:if test="${empty inquiryList}">
+                            <tr>
+                                <td colspan="3" class="text-center">문의사항이 없습니다.</td>
+                            </tr>
+                        </c:if>
                     </tbody>
                 </table>
             </div>

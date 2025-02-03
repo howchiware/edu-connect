@@ -1,5 +1,6 @@
 package com.springboot.reservationsite.model;
 
+
 public class UserBoardDo {
 
 	private int num;

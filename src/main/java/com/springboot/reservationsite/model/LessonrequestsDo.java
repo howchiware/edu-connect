@@ -40,7 +40,7 @@ public class LessonrequestsDo {
     private String selectedTime; 
 
     public enum RequestsStatus {
-        PENDING, ACCEPTED, REJECTED
+        PENDING, ACCEPTED, REJECTED, CANCEL
     }
 
     // 기본 생성자

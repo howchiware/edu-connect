@@ -42,6 +42,8 @@
             border: 1px solid #dee2e6;
             padding: 10px;
         }
+		
+
     </style>
     <script>
 		function changeStatus(num, status) {
@@ -162,22 +164,23 @@
                 </table>
             </div>
 
-            <!-- 📌 문의사항 -->
+           
             <div class="sidebar-item">
                 <h2>문의사항</h2>
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>사용자</th>
+                            <th>제목</th>
+                            <th>작성자</th>
                             <th>문의내용</th>
-                            <th>작업</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <c:forEach var="inquiry" items="${inquiryList}">
+                        <c:forEach var="enquiry" items="${enquiryList}">
                             <tr>
-                                <td>${inquiry.userName}</td>
-                                <td>${inquiry.message}</td>
+                                <td>${enquiry.title}</td>
+                                <td>${enquiry.userId}</td>
+								<td class="truncate-content">${enquiry.content}</td>
                                 <td>
                                     <button class="btn btn-primary btn-sm" onclick="replyInquiry(${inquiry.num})">답변</button>
                                 </td>

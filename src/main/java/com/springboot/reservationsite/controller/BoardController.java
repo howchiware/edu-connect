@@ -1,16 +1,20 @@
 package com.springboot.reservationsite.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,9 +22,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
 import com.springboot.reservationsite.model.BoardDao;
+import com.springboot.reservationsite.model.EnquirytableBoardDo;
 import com.springboot.reservationsite.model.LessonDo;
+import com.springboot.reservationsite.model.LessonrequestsDao;
 import com.springboot.reservationsite.model.LessonrequestsDo;
 import com.springboot.reservationsite.model.UserBoardDo;
 
@@ -31,11 +40,22 @@ public class BoardController {
 
     @Autowired
     private BoardDao boardDao;
+    
+    @Autowired
+    private LessonrequestsDao lessonrequestsDao;
 
     // 강의 목록 가져와서 mainBoard 페이지에 전달
     @RequestMapping(value = "/mainBoard.do")
-    public String mainBoard(Model model) {
+    public String mainBoard(HttpSession session, Model model) {
         System.out.println("mainBoard()");
+
+        UserBoardDo loginUser = (UserBoardDo) session.getAttribute("loginUser");
+
+        if (loginUser != null) {
+            System.out.println("User in session at mainBoard: " + loginUser);
+        } else {
+            System.out.println("No user found in session!");
+        }
 
         List<LessonDo> lessonList = boardDao.getBoardList();
         model.addAttribute("lessonList", lessonList);
@@ -52,22 +72,31 @@ public class BoardController {
     
     @RequestMapping(value = "/usermainBoard.do")
     public String usermainBoard(HttpSession session, Model model) {
-    	try {
-    		String userId = (String) session.getAttribute("loginId");
-    		if (userId == null) {
-    			return "redirect:/mainBoard.do";
-    		}
-    		
-    		List<LessonrequestsDo> userlessonList = boardDao.getLessonListByUserId(userId);
-    		model.addAttribute("userlessonList", userlessonList);
-        return "usermainBoard";
-    }catch (Exception e) {
-    	 System.err.println("Error in usermainBoard: " + e.getMessage());
-         model.addAttribute("error", "페이지를 불러오는 중 문제가 발생했습니다.");
-         return "errorPage";
-	}
+        try {
+            String userId = (String) session.getAttribute("loginId");
+            if (userId == null) {
+                return "redirect:/mainBoard.do";
+            }
+
+            // 수락된 강의 목록
+            List<LessonrequestsDo> enrolledLessons = lessonrequestsDao.getAcceptedLessonsByUserId(userId);
+            model.addAttribute("enrolledLessons", enrolledLessons);
+
+            // 대기중(Pending) 및 거절된(Rejected) 강의 목록
+            List<LessonrequestsDo> pendingAndRejectedLessons = lessonrequestsDao.getPendingOrRejectedLessonsByUserId(userId);
+            model.addAttribute("pendingAndRejectedLessons", pendingAndRejectedLessons);
+            
+            // 사용자가 작성한 문의사항에 대한 정보
+            List<EnquirytableBoardDo> enquiryList = boardDao.getEnquiriesByTeacherId(userId);
+            model.addAttribute("enquiryList", enquiryList);
+            
+            return "usermainBoard";
+        } catch (Exception e) {
+            System.err.println("Error in usermainBoard: " + e.getMessage());
+            model.addAttribute("error", "페이지를 불러오는 중 문제가 발생했습니다.");
+            return "errorPage";
+        }
     }
-    
 
     // 강사의 ID를 통해서 자신만의 강의 목록 조회
     @RequestMapping(value = "/teachermainBoard.do")
@@ -78,13 +107,17 @@ public class BoardController {
                 return "redirect:/mainBoard.do"; // 로그인 페이지로 리다이렉트
             }
 
-            // ✅ 강사가 개설한 수업 목록 조회
+            // 강사가 개설한 수업 목록 조회
             List<LessonDo> lessonList = boardDao.getLessonListByTeacherId(teacherId);
             model.addAttribute("lessonList", lessonList);
 
-            // ✅ 강사의 강의에 신청한 학생 목록 조회
-            List<LessonrequestsDo> responseList = boardDao.getLessonRequestsByTeacherId(teacherId);
+            // 강사의 강의에 신청한 학생 목록 조회
+            List<LessonrequestsDo> responseList = lessonrequestsDao.getLessonRequestsByTeacherId(teacherId);
             model.addAttribute("responseList", responseList);
+            
+            // 강사가 담당하는 수업에 대한 문의사항 목록 조회
+            List<EnquirytableBoardDo> enquiryList = boardDao.getEnquiriesByTeacherId(teacherId);
+            model.addAttribute("enquiryList", enquiryList);
 
             return "teachermainBoard";
         } catch (Exception e) {
@@ -93,8 +126,12 @@ public class BoardController {
             return "errorPage";
         }
     }
+    
+    
 
- //
+    
+
+    // 수정 보완 필요함
     @RequestMapping(value = "/teacherMain.do")
     public String teacherMain(HttpSession session, Model model) {
         try {
@@ -107,27 +144,24 @@ public class BoardController {
 
             System.out.println("✅ teacherMain.do 실행됨! teacherId: " + teacherId);
 
-            // ✅ 강사가 개설한 수업 목록 조회
+            // 강사가 개설한 수업 목록 조회
             List<LessonDo> lessonList = boardDao.getLessonListByTeacherId(teacherId);
-            System.out.println("📋 조회된 강의 목록: " + lessonList);
+            System.out.println("조회된 강의 목록: " + lessonList);
 
-            // ✅ `getLessonRequestsByTeacherId()` 실행 여부 확인
-            System.out.println("🚀 getLessonRequestsByTeacherId() 실행 전 - teacherId: " + teacherId);
+            System.out.println("getLessonRequestsByTeacherId() 실행 전 - teacherId: " + teacherId);
             
-            // 🚀 DAO에서 조회 실행
-            List<LessonrequestsDo> responseList = boardDao.getLessonRequestsByTeacherId(teacherId);
+            List<LessonrequestsDo> responseList = lessonrequestsDao.getLessonRequestsByTeacherId(teacherId);
             
-            System.out.println("🚀 getLessonRequestsByTeacherId() 실행 완료");
+            System.out.println("getLessonRequestsByTeacherId() 실행 완료");
 
-            // ❗❗ responseList 내용 상세 로그 출력 ❗❗
             if (responseList == null) {
-                System.out.println("❌ responseList 자체가 NULL입니다!");
+                System.out.println("responseList NULL!");
             } else if (responseList.isEmpty()) {
-                System.out.println("❌ 조회된 수강 요청 목록이 없습니다!");
+                System.out.println("조회된 수강 요청 목록이 없습니다!");
             } else {
-                System.out.println("📋 조회된 수강 요청 목록:");
+                System.out.println("조회된 수강 요청 목록:");
                 for (LessonrequestsDo request : responseList) {
-                    System.out.println("🔹 요청 ID: " + request.getUserId() +
+                    System.out.println("요청 ID: " + request.getUserId() +
                             " | 수업명: " + request.getLessonName() +
                             " | 신청자: " + request.getUserName() + " (" + request.getUserId() + ")" +
                             " | 선택 시간: " + request.getSelectedTime() +
@@ -141,23 +175,13 @@ public class BoardController {
 
             return "teacherMain";
         } catch (Exception e) {
-            System.err.println("❌ teacherMain.do 요청 처리 중 오류 발생: " + e.getMessage());
+            System.err.println("teacherMain.do 요청 처리 중 오류 발생: " + e.getMessage());
             e.printStackTrace();
             model.addAttribute("error", "페이지를 불러오는 중 문제가 발생했습니다.");
             return "errorPage";
         }
     }
 
-
-
-
-
-
-
-
-
-
-    
     // 회원가입 페이지
     @RequestMapping(value = "/joinBoard.do", method = RequestMethod.GET)
     public String joinBoard() {
@@ -181,18 +205,30 @@ public class BoardController {
         return "loginBoard";
     }
 
-    // 로그인 검증 후 사용자 역할에 따라서 페이지 이동
     @RequestMapping(value = "/loginBoardProc.do", method = RequestMethod.POST)
     public String loginBoardProc(UserBoardDo udo, HttpSession session, Model model) {
         UserBoardDo udo1 = boardDao.loginBoard(udo.getId(), udo.getPwd());
+        
         if (udo1 != null) {
             System.out.println("loginBoardProc() - Login Success");
-
-            UserBoardDo.Role role = udo1.getRole();
+            
+            model.addAttribute("udo1", udo1);
+            
+            session.setAttribute("loginUser", udo1);
+            
             session.setAttribute("loginName", udo1.getName());
             session.setAttribute("loginId", udo1.getId());
             session.setAttribute("isLoggedIn", true);
-
+            
+            UserBoardDo sessionUser = (UserBoardDo) session.getAttribute("loginUser");
+            if (sessionUser != null) {
+                System.out.println("User stored in session: " + sessionUser);
+                System.out.println("User num from session: " + sessionUser.getNum());  // num 값 확인
+            } else {
+                System.out.println("Session does not contain loginUser.");
+            }
+            
+            UserBoardDo.Role role = udo1.getRole();
             switch (role) {
                 case ADMIN:
                     return "redirect:/adminmainBoard.do";
@@ -211,7 +247,7 @@ public class BoardController {
         }
     }
 
-    // 세션 무효화 후 메인 페이지 이동
+    
     @RequestMapping(value = "/logout.do", method = RequestMethod.GET)
     public String logoutBoard(HttpSession session) {
         System.out.println("logoutBoard()");
@@ -219,14 +255,12 @@ public class BoardController {
         return "redirect:/mainBoard.do";
     }
 
-    // 강의 추가 페이지
     @RequestMapping(value = "/addlessonBoard.do")
     public String addlessonBoard() {
         System.out.println("addlessonBoard()");
         return "addlessonBoard";
     }
 
-    // 강의 정보 DB에 저장
     @RequestMapping(value = "/addlessonBoardProc.do", method = RequestMethod.POST)
     public String addlessonBoardProc(
         @RequestParam(value = "photo", required = false) MultipartFile photo,
@@ -238,16 +272,14 @@ public class BoardController {
         Model model
     ) {
         try {
-            // 1. 세션에서 사용자 정보 가져오기
             String userId = (String) session.getAttribute("loginId");
             String userName = (String) session.getAttribute("loginName");
 
             if (userId == null || userName == null) {
                 model.addAttribute("error", "로그인이 필요합니다.");
-                return "loginBoard"; // 로그인 페이지로 이동
+                return "loginBoard";
             }
 
-            // 2. LessonDo 객체 생성 및 설정
             LessonDo ldo = new LessonDo();
             ldo.setTitle(title);
             ldo.setDescription(description);
@@ -258,22 +290,19 @@ public class BoardController {
                 ldo.setPhoto(photo.getBytes());
             }
 
-            ldo.setTeacherId(userId); // 세션에서 가져온 userId를 teacherId로 설정
+            ldo.setTeacherId(userId); 
 
-            // 3. 수업 추가
             int lessonId = boardDao.addLessonBoard(ldo);
 
-            // 4. LessonrequestsDo 객체 생성 및 설정
             LessonrequestsDo lessonRequest = new LessonrequestsDo();
-            lessonRequest.setUserId(userId); // 세션에서 가져온 userId 설정
+            lessonRequest.setUserId(userId);
             lessonRequest.setUserName(userName);
-            lessonRequest.setTeacherId(userId); // 수업 생성자의 ID 설정
+            lessonRequest.setTeacherId(userId);
             lessonRequest.setLessonName(title);
             lessonRequest.setLessonId(lessonId);
             lessonRequest.setRequestsStatus(LessonrequestsDo.RequestsStatus.PENDING);
 
-            // 5. 수업 요청 추가
-            boardDao.addLessonRequest(lessonRequest);
+            lessonrequestsDao.addLessonRequest(lessonRequest);
 
             System.out.println("Lesson added successfully: " + title);
 
@@ -287,16 +316,15 @@ public class BoardController {
         }
     }
 
-    // 강의 삭제. 관련 정보도 함께 삭제
     @RequestMapping(value = "/deleteLesson.do", method = RequestMethod.GET)
     public String deleteLesson(@RequestParam(value = "num", required = false, defaultValue = "0") int lessonId, Model model) {
         if (lessonId == 0) {
             model.addAttribute("error", "유효하지 않은 수업 번호입니다.");
-            return "teachermainBoard"; // 에러 페이지로 리다이렉트
+            return "teachermainBoard";
         }
 
         try {
-            boardDao.deleteLessonRequestsByLessonId(lessonId);
+        	lessonrequestsDao.deleteLessonRequestsByLessonId(lessonId);
             
             boardDao.deleteLesson(lessonId);
 
@@ -315,73 +343,51 @@ public class BoardController {
     public Map<String, Object> applyLesson(@RequestBody Map<String, Object> requestData) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // ✅ NULL 값 체크 및 기본값 설정
+
             if (!requestData.containsKey("lessonId") || requestData.get("lessonId") == null) {
-                throw new IllegalArgumentException("❌ lessonId 값이 없습니다.");
+                throw new IllegalArgumentException("lessonId 값이 없습니다.");
             }
             if (!requestData.containsKey("userId") || requestData.get("userId") == null) {
-                throw new IllegalArgumentException("❌ userId 값이 없습니다.");
+                throw new IllegalArgumentException("userId 값이 없습니다.");
             }
             if (!requestData.containsKey("teacherId") || requestData.get("teacherId") == null) {
-                throw new IllegalArgumentException("❌ teacherId 값이 없습니다.");
-            }
-            if (!requestData.containsKey("lessonTitle") || requestData.get("lessonTitle") == null) {
-                requestData.put("lessonTitle", "제목 없음"); // 기본값 설정
-            }
-            if (!requestData.containsKey("selectedTime") || requestData.get("selectedTime") == null) {
-                requestData.put("selectedTime", "기본 시간"); // ✅ 기본 시간 설정
+                throw new IllegalArgumentException("teacherId 값이 없습니다.");
             }
 
-            // ✅ `lessonId`를 안전하게 변환 (예외 방지)
             Object lessonIdObj = requestData.get("lessonId");
-            int lessonId;
+            int lessonId = 0;
             if (lessonIdObj instanceof Integer) {
                 lessonId = (Integer) lessonIdObj;
             } else {
-                lessonId = Integer.parseInt(lessonIdObj.toString());
+                try {
+                    lessonId = Integer.parseInt(lessonIdObj.toString());
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("lessonId는 숫자여야 합니다.");
+                }
             }
-
-            String userId = requestData.get("userId").toString();
-            String userName = requestData.get("userName").toString();
-            String teacherId = requestData.get("teacherId").toString();
-            String lessonName = requestData.get("lessonTitle").toString();
-            String selectedTime = requestData.get("selectedTime").toString();
-
-            System.out.println("📥 수업 신청 데이터: " + requestData);
-
-            if (!boardDao.checkLessonExists(lessonId)) {
-                response.put("success", false);
-                response.put("error", "❌ 해당 lessonId가 존재하지 않습니다.");
-                return response;
-            }
-
+            
             LessonrequestsDo lessonRequest = new LessonrequestsDo();
-            lessonRequest.setUserId(userId);
-            lessonRequest.setUserName(userName);
-            lessonRequest.setTeacherId(teacherId);
-            lessonRequest.setLessonName(lessonName);
+            lessonRequest.setUserId(requestData.get("userId").toString());
+            lessonRequest.setTeacherId(requestData.get("teacherId").toString());
+            lessonRequest.setLessonName(requestData.get("lessonTitle").toString());
+            lessonRequest.setUserName(requestData.get("userName").toString());
             lessonRequest.setLessonId(lessonId);
             lessonRequest.setRequestsStatus(LessonrequestsDo.RequestsStatus.PENDING);
-            lessonRequest.setRequestDate(LocalDateTime.now());
-            lessonRequest.setSelectedTime(selectedTime);
+            lessonRequest.setSelectedTime(requestData.get("selectedTime").toString());
 
-            boardDao.addLessonRequest(lessonRequest);
+            lessonrequestsDao.addLessonRequest(lessonRequest);
 
             response.put("success", true);
-        } catch (NumberFormatException e) {
+        } catch (IllegalArgumentException e) {
             response.put("success", false);
-            response.put("error", "❌ lessonId가 올바른 숫자가 아닙니다.");
+            response.put("error", e.getMessage());
         } catch (Exception e) {
             response.put("success", false);
             response.put("error", e.getMessage());
-            System.err.println("❌ 신청 중 오류 발생: " + e.getMessage());
         }
         return response;
     }
-    
 
-    
-    
     @PostMapping("/updateRequestStatus")
     @ResponseBody
     public Map<String, Object> updateRequestStatus(@RequestBody Map<String, Object> requestData) {
@@ -389,13 +395,13 @@ public class BoardController {
         try {
             int num = (int) requestData.get("num");  
             if (num == 0) {
-                throw new IllegalArgumentException("❌ 잘못된 요청: num 값이 0입니다.");
+                throw new IllegalArgumentException("잘못된 요청: num 값이 0입니다.");
             }
 
             String status = (String) requestData.get("status");
-            System.out.println("📥 상태 변경 요청 - num: " + num + ", status: " + status);
+            System.out.println("상태 변경 요청 - num: " + num + ", status: " + status);
 
-            boolean isUpdated = boardDao.updateRequestStatus(num, LessonrequestsDo.RequestsStatus.valueOf(status));
+            boolean isUpdated = lessonrequestsDao.updateRequestStatus(num, LessonrequestsDo.RequestsStatus.valueOf(status));
 
             if (isUpdated) {
                 response.put("success", true);
@@ -406,25 +412,176 @@ public class BoardController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("error", e.getMessage());
-            System.err.println("❌ 상태 변경 중 오류 발생: " + e.getMessage());
+            System.err.println("상태 변경 중 오류 발생: " + e.getMessage());
         }
         return response;
+    }
+
+    // 사용자 수정 페이지
+    @RequestMapping(value="/usermodifyBoard.do")
+    public ModelAndView usermodifyBoard(HttpSession session, ModelAndView mav) {
+        
+        System.out.println("usermodifyBoard()");
+        
+        UserBoardDo loginUser = (UserBoardDo) session.getAttribute("loginUser"); // ✅ loginUser로 변경
+        
+        if (loginUser == null) {
+            mav.setViewName("redirect:mainBoard.do"); // 로그인 페이지로 이동
+            return mav;
+        }
+        
+        UserBoardDo usertable = boardDao.getUserBoard(loginUser);
+        
+        if (usertable == null) {
+        	System.out.println("usertable NULL");
+        } else {
+        	System.out.println("usertable.num 값: " + usertable.getNum());
+        }
+        
+        mav.addObject("usertable", usertable);
+        mav.setViewName("usermodifyBoard");
+        
+        return mav;
+    }
+
+
+    @RequestMapping(value = "/usermodifyBoardroc.do")
+    public String usermodifyBoardroc(UserBoardDo udo, HttpSession session) {
+        System.out.println("usermodifyBoardroc()");
+
+        UserBoardDo loginUser = (UserBoardDo) session.getAttribute("loginUser");
+
+        if (loginUser == null) {
+            return "redirect:mainBoard.do";
+        }
+
+        // ✅ DB 업데이트 실행
+        boardDao.usermodifyBoard(udo);
+        System.out.println("usermodifyBoardroc() complete");
+
+        // ✅ DB에서 최신 데이터 다시 가져오기
+        UserBoardDo updatedUser = boardDao.getUserById(udo.getId());
+
+        // ✅ 최신 데이터로 세션 갱신
+        session.setAttribute("loginUser", updatedUser);
+
+        return "redirect:mainBoard.do";
+    }
+    
+    
+
+
+
+
+    
+    
+    
+    
+    // 사용자 - 예약 확인 페이지
+    @RequestMapping(value = "/detaillessonBoard.do", method = RequestMethod.GET)
+    public String detailLessonBoard(@RequestParam("num") int num, Model model) {
+        System.out.println("✅ Received num: " + num); // 디버깅 로그
+
+        try {
+            // ✅ `num`을 사용하여 `lessontable`에서 조회
+            LessonDo lesson = boardDao.getLessonById(num);
+            if (lesson == null) {
+                System.out.println("❌ Lesson not found for num: " + num);
+                model.addAttribute("error", "해당 강의를 찾을 수 없습니다.");
+                return "errorPage";
+            }
+
+            model.addAttribute("lesson", lesson);
+            return "detaillessonBoard";
+        } catch (Exception e) {
+            System.err.println("❌ Error in detailLessonBoard: " + e.getMessage());
+            model.addAttribute("error", "강의 정보를 가져오는 중 오류가 발생했습니다.");
+            return "errorPage";
+        }
+    }
+    
+    
+    // 수업 수정
+    @RequestMapping(value="/lessonmodifyBoard.do")
+    public ModelAndView lessonmodifyBoard(LessonDo ldo, BoardDao bdao, ModelAndView mav) {
+    	System.out.println("lessonmodifyBoard()");
+    	
+    	LessonDo lessontable = boardDao.getBoard(ldo);
+    	
+    	mav.addObject("lessontable", lessontable);
+    	mav.setViewName("lessonmodifyBoard");
+    	
+    	return mav;
+    }
+    
+    
+    // 사진 업로드
+    private static final String UPLOAD_DIR = "C:\\haeun_java_workspace\\spring\\workspace\\reservationsite\\src\\main\\resources\\static\\images\\";
+
+    @PostMapping("/uploadImage")
+    public String uploadImage(@RequestParam("file") MultipartFile file, HttpSession session) {
+        if (!file.isEmpty()) {
+            try {
+                // 파일명 생성 (UUID + 원래 파일명)
+                String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                File saveFile = new File("C:\\haeun_java_workspace\\spring\\workspace\\reservationsite\\src\\main\\resources\\static\\images\\" + fileName);
+
+                // 파일 저장
+                file.transferTo(saveFile);
+
+                // 웹에서 접근 가능한 경로를 세션에 저장
+                String webPath = "/images/" + fileName;
+                session.setAttribute("uploadedImage", webPath);
+
+                // 로그 확인 (업로드된 파일 경로 출력)
+                System.out.println("Uploaded image path: " + webPath);
+
+                return "redirect:/yourPage"; // 이미지 업로드 후 이동할 페이지
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "errorPage"; // 에러 발생 시 이동할 페이지
+            }
+        } else {
+            return "errorPage"; // 파일이 비어 있을 경우 처리
+        }
     }
 
 
 
 
 
-    // 정보 수정 페이지
-    
-    
-    // 사용자 - 예약 확인 페이지
-    
-    
-    // 게시판 글 작성 페이지
-    
 
 
+    
+    
+    
+ // 게시판 글 작성 페이지
+    @RequestMapping(value = "/insertenquiryBoard.do")
+    public String insertenquiryBoard() {
+        System.out.println("insertenquiryBoard()");
+        return "insertenquiryBoard";
+    }
+
+    // 게시판 문의 등록 처리
+    @RequestMapping(value = "/insertenquiryProcBoard.do")
+    public String insertenquiryProcBoard(EnquirytableBoardDo edo, HttpSession session) {
+        System.out.println("insertenquiryProcBoard()");
+
+        // 세션에서 로그인한 사용자 정보 가져오기
+        UserBoardDo loginUser = (UserBoardDo) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:mainBoard.do"; // 로그인 안 되어 있으면 로그인 페이지로 이동
+        }
+
+        // 사용자 정보 설정 (문의 작성자 ID)
+        edo.setUserId(loginUser.getId());
+
+        // DB에 저장
+        boardDao.insertenquiryBoard(edo);
+
+        return "redirect:mainBoard.do"; // 문의 등록 후 메인 페이지로 이동
+    }
+    
 
 
 
