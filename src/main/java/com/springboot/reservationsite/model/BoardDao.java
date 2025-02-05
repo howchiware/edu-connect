@@ -57,14 +57,15 @@ public class BoardDao {
 	public int addLessonBoard(LessonDo ldo) {
 		System.out.println("addLessonBoard() start");
 
-		String sql = "INSERT INTO lessontable (photo, title, description, time, people, teacherId, teacherName, lessonId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO lessontable (photoPath, title, description, time, people, teacherId, teacherName, lessonId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 		String generatedKeyQuery = "SELECT LAST_INSERT_ID()"; // MySQL에서 자동 생성된 PK(lessonId)) 가져오기
 
 		try {
 			// 데이터 삽입
-			jdbcTemplate.update(sql, ldo.getPhoto() != null ? ldo.getPhoto() : new byte[0], // NULL 방지
-					ldo.getTitle(), ldo.getDescription() != null ? ldo.getDescription() : "", // NULL 방지
-					ldo.getTime().name(), ldo.getPeople() != null ? ldo.getPeople() : 0, // NULL 방지
+			jdbcTemplate.update(sql, ldo.getPhoto() != null ? ldo.getPhoto() : new byte[0],  
+					ldo.getPhotoPath(),
+					ldo.getTitle(), ldo.getDescription() != null ? ldo.getDescription() : "", 
+					ldo.getTime().name(), ldo.getPeople() != null ? ldo.getPeople() : 0, 
 					ldo.getTeacherId(), ldo.getTeacherName()
 					
 			);
@@ -94,7 +95,7 @@ public class BoardDao {
 		System.out.println("getLessonListByTeacherId() start");
 		System.out.println("Fetching lessons for teacherId: " + teacherId);
 
-		String sql = "SELECT num, photo, title, description, time, people, teacherId, teacherName, lessonId FROM lessontable WHERE teacherId = ?";
+		String sql = "SELECT num, photo, photoPath, title, description, time, people, teacherId, teacherName, lessonId FROM lessontable WHERE teacherId = ?";
 
 		try {
 			List<LessonDo> lessonList = jdbcTemplate.query(sql, new Object[] { teacherId }, new RowMapper<LessonDo>() {
@@ -201,6 +202,15 @@ public class BoardDao {
 	public List<EnquirytableBoardDo> getEnquiriesByUserId(String userId) {
 	    String sql = "SELECT * FROM enquirytable WHERE userId = ?";
 	    return jdbcTemplate.query(sql, new Object[] { userId }, new BeanPropertyRowMapper<>(EnquirytableBoardDo.class));
+	}
+	
+	
+	// 수업 수정하는 메소드
+	public void lessonmodifyBoard(LessonDo ldo) {
+		System.out.println("lessonmodifyBoard()");
+		
+		String sql = "update lessontable set photo=?, photoPath=? title=?, description=?, time=?, people=? where num=?";
+		jdbcTemplate.update(sql, ldo.getPhoto(), ldo.getPhotoPath(), ldo.getTitle(), ldo.getDescription(), ldo.getTime(), ldo.getPeople(), ldo.getNum());
 	}
 
 

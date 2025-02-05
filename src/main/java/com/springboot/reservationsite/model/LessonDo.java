@@ -13,7 +13,10 @@ public class LessonDo {
     private int num;
 
     @Lob
-    private byte[] photo; // BLOB 필드 매핑
+    private byte[] photo;
+    
+    @Column(name = "photo_path")
+    private String photoPath;    
 
     @Column(length = 50, nullable = false)
     private String title;
@@ -59,6 +62,14 @@ public class LessonDo {
 
 	public void setPhoto(byte[] photo) {
 		this.photo = photo;
+	}
+
+	public String getPhotoPath() {
+		return photoPath;
+	}
+
+	public void setPhotoPath(String photoPath) {
+		this.photoPath = photoPath;
 	}
 
 	public String getTitle() {
@@ -119,16 +130,17 @@ public class LessonDo {
 
 	@Override
 	public String toString() {
-		return "LessonDo [num=" + num + ", photo=" + Arrays.toString(photo) + ", title=" + title + ", description="
-				+ description + ", time=" + time + ", people=" + people + ", teacherId=" + teacherId + ", teacherName="
-				+ teacherName + ", lessonId=" + lessonId + "]";
+		return "LessonDo [num=" + num + ", photo=" + Arrays.toString(photo) + ", photoPath=" + photoPath + ", title="
+				+ title + ", description=" + description + ", time=" + time + ", people=" + people + ", teacherId="
+				+ teacherId + ", teacherName=" + teacherName + ", lessonId=" + lessonId + "]";
 	}
 
-	public LessonDo(int num, byte[] photo, String title, String description, TimeType time, Integer people,
-			String teacherId, String teacherName, int lessonId) {
+	public LessonDo(int num, byte[] photo, String photoPath, String title, String description, TimeType time,
+			Integer people, String teacherId, String teacherName, int lessonId) {
 		super();
 		this.num = num;
 		this.photo = photo;
+		this.photoPath = photoPath;
 		this.title = title;
 		this.description = description;
 		this.time = time;

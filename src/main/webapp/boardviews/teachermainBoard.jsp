@@ -156,7 +156,7 @@
                                 <td>${lesson.time}</td>
                                 <td>${lesson.people}</td>
 								<td>
-									<button class="btn btn-primary btn-sm">수정</button>	
+									<button class="btn btn-primary btn-sm"  onclick="location.href='lessonmodifyBoard.do'">수정</button>	
 								</td>
                             </tr>
                         </c:forEach>

@@ -255,21 +255,25 @@ public class BoardController {
         return "redirect:/mainBoard.do";
     }
 
+   
+    private static final String UPLOAD_DIR = String UPLOAD_DIR = "C:/haeun_java_workspace/spring/workspace/reservationsite/src/main/resources/static/images/";
+
+
     @RequestMapping(value = "/addlessonBoard.do")
     public String addlessonBoard() {
         System.out.println("addlessonBoard()");
         return "addlessonBoard";
     }
-
+    
     @RequestMapping(value = "/addlessonBoardProc.do", method = RequestMethod.POST)
     public String addlessonBoardProc(
-        @RequestParam(value = "photo", required = false) MultipartFile photo,
-        @RequestParam(value = "title") String title,
-        @RequestParam(value = "description") String description,
-        @RequestParam(value = "time") LessonDo.TimeType time,
-        @RequestParam(value = "people", defaultValue = "0") Integer people,
-        HttpSession session,
-        Model model
+            @RequestParam(value = "photo", required = false) MultipartFile photo,
+            @RequestParam(value = "title") String title,
+            @RequestParam(value = "description") String description,
+            @RequestParam(value = "time") LessonDo.TimeType time,
+            @RequestParam(value = "people", defaultValue = "0") Integer people,
+            HttpSession session,
+            Model model
     ) {
         try {
             String userId = (String) session.getAttribute("loginId");
@@ -285,15 +289,34 @@ public class BoardController {
             ldo.setDescription(description);
             ldo.setTime(time);
             ldo.setPeople(people);
+            ldo.setTeacherId(userId);
+            ldo.setTeacherName(userName);
 
+            // ✅ 사진 업로드 처리
             if (photo != null && !photo.isEmpty()) {
-                ldo.setPhoto(photo.getBytes());
+                // 업로드할 디렉토리 (C:/upload/)
+                String UPLOAD_DIR = "C:/haeun_java_workspace/spring/workspace/reservationsite/src/main/resources/static/images/";
+                
+                // 파일명 생성 (UUID + 원래 파일명)
+                String fileName = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
+                File saveFile = new File(UPLOAD_DIR + fileName);
+
+                // 파일 저장
+                photo.transferTo(saveFile);
+
+                // DB에 저장할 웹 경로 설정
+                ldo.setPhotoPath("C:/haeun_java_workspace/spring/workspace/reservationsite/src/main/resources/static/images/" + fileName);
+                System.out.println("✅ 사진 저장 완료: " + ldo.getPhotoPath());
+            } else {
+                // 사진이 없을 경우 기본 이미지 경로 설정
+                ldo.setPhotoPath("C:/haeun_java_workspace/spring/workspace/reservationsite/src/main/resources/static/images/lesson_1.jpg");
+                System.out.println("⚠️ 사진이 없어 기본 이미지 사용");
             }
 
-            ldo.setTeacherId(userId); 
-
+            // DB 저장
             int lessonId = boardDao.addLessonBoard(ldo);
 
+            // 수업 요청 정보 저장
             LessonrequestsDo lessonRequest = new LessonrequestsDo();
             lessonRequest.setUserId(userId);
             lessonRequest.setUserName(userName);
@@ -304,17 +327,20 @@ public class BoardController {
 
             lessonrequestsDao.addLessonRequest(lessonRequest);
 
-            System.out.println("Lesson added successfully: " + title);
-
+            System.out.println("✅ Lesson 추가 완료: " + title);
             return "redirect:/teachermainBoard.do";
+
         } catch (IOException e) {
             model.addAttribute("error", "사진 업로드에 실패했습니다.");
+            e.printStackTrace();
             return "addlessonBoard";
         } catch (Exception e) {
             model.addAttribute("error", "수업 추가 중 문제가 발생했습니다.");
+            e.printStackTrace();
             return "addlessonBoard";
         }
     }
+
 
     @RequestMapping(value = "/deleteLesson.do", method = RequestMethod.GET)
     public String deleteLesson(@RequestParam(value = "num", required = false, defaultValue = "0") int lessonId, Model model) {
@@ -514,45 +540,18 @@ public class BoardController {
     	return mav;
     }
     
-    
-    // 사진 업로드
-    private static final String UPLOAD_DIR = "C:\\haeun_java_workspace\\spring\\workspace\\reservationsite\\src\\main\\resources\\static\\images\\";
-
-    @PostMapping("/uploadImage")
-    public String uploadImage(@RequestParam("file") MultipartFile file, HttpSession session) {
-        if (!file.isEmpty()) {
-            try {
-                // 파일명 생성 (UUID + 원래 파일명)
-                String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-                File saveFile = new File("C:\\haeun_java_workspace\\spring\\workspace\\reservationsite\\src\\main\\resources\\static\\images\\" + fileName);
-
-                // 파일 저장
-                file.transferTo(saveFile);
-
-                // 웹에서 접근 가능한 경로를 세션에 저장
-                String webPath = "/images/" + fileName;
-                session.setAttribute("uploadedImage", webPath);
-
-                // 로그 확인 (업로드된 파일 경로 출력)
-                System.out.println("Uploaded image path: " + webPath);
-
-                return "redirect:/yourPage"; // 이미지 업로드 후 이동할 페이지
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "errorPage"; // 에러 발생 시 이동할 페이지
-            }
-        } else {
-            return "errorPage"; // 파일이 비어 있을 경우 처리
-        }
+    @RequestMapping(value="/lessonmodifyProcBoard.do")
+    public ModelAndView lessonmodifyProcBoard(LessonDo ldo, BoardDao bdao, ModelAndView mav) {
+    	System.out.println("lessonmodifyProcBoard()");
+    	
+    	boardDao.lessonmodifyBoard(ldo);
+    	mav.setViewName("redirect:teachermainBoard.do");
+    	
+    	return mav;
     }
-
-
-
-
-
-
-
     
+    
+ 
     
     
  // 게시판 글 작성 페이지
