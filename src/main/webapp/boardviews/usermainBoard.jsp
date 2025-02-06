@@ -76,7 +76,9 @@
 <body>
 	
     <div class="header">
-        <h1>User Dashboard</h1>
+		<a class="navbar-brand" href="#">
+		    <p onclick="location.href='mainBoard.do'">✌️ 수업 예약 사이트 </p>
+		</a>
         <div class="d-flex align-items-center">
             <span class="me-3">반갑습니다, ${sessionScope.loginName} 님!</span>
             <button type="button" class="btn btn-outline-danger" onclick="location.href='logout.do'">로그아웃</button>
@@ -103,7 +105,6 @@
 					        <td>${lesson.teacherName}</td>
 					        <td>${lesson.selectedTime}</td>
 								<td>
-									<p>lessonId: ${lesson.lessonId}</p>
 									<button type="button" class="btn btn-outline-secondary" onclick="location.href='detaillessonBoard.do?num=${lesson.lessonId}'">상세보기</button>
 						        </td>
 
@@ -162,16 +163,15 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>사용자</th>
-                            <th>문의내용</th>
+                            <th>답변</th>
                             <th>작업</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <c:forEach var="inquiry" items="${inquiryList}">
+                        <c:forEach var="enquiry" items="${enquiryList}">
                             <tr>
-                                <td>${inquiry.userName}</td>
-                                <td>${inquiry.message}</td>
+                                <td>${enquiry.title_teacher}</td>
+                                <td>${enquiry.content_teacher}</td>
                                 <td>
                                     <button class="btn btn-primary btn-sm">답변</button>
                                 </td>

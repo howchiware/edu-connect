@@ -24,10 +24,9 @@
 <body>
 	
 	<div class="container-fluid">
-	  <a class="navbar-brand" href="#">
-	    <img src="/images/logo.png" alt="Logo" width="30" height="24" class="d-inline-block align-text-top" onclick="location.href='mainBoard.do'">
-	    User Modify Board
-	  </a>
+		<a class="navbar-brand" href="#">
+		    <p onclick="location.href='mainBoard.do'">✌️ 수업 예약 사이트 </p>
+		</a>
 	</div>
 
 	<form action="usermodifyBoardroc.do" method="post">

@@ -87,7 +87,9 @@
 </head>
 <body>
     <div class="header">
-        <h1>Teacher Dashboard</h1>
+		<a class="navbar-brand" href="#">
+		    <p onclick="location.href='mainBoard.do'">✌️ 수업 예약 사이트 </p>
+		</a>
         <div class="d-flex align-items-center">
             <span class="me-3">반갑습니다, ${sessionScope.loginName} 님!</span>
             <button type="button" class="btn btn-outline-danger" onclick="location.href='logout.do'">로그아웃</button>
@@ -176,13 +178,14 @@
                         </tr>
                     </thead>
                     <tbody>
+						
                         <c:forEach var="enquiry" items="${enquiryList}">
                             <tr>
                                 <td>${enquiry.title}</td>
                                 <td>${enquiry.userId}</td>
 								<td class="truncate-content">${enquiry.content}</td>
                                 <td>
-                                    <button class="btn btn-primary btn-sm" onclick="replyInquiry(${inquiry.num})">답변</button>
+									<button class="btn btn-primary btn-sm" onclick="location.href='teachermessageBoard.do?num=${enquiry.num}'">답변</button>
                                 </td>
                             </tr>
                         </c:forEach>

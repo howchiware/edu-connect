@@ -14,14 +14,14 @@ public class LessonDo {
 
     @Lob
     private byte[] photo;
-    
+
     @Column(name = "photoPath")
     private String photoPath;    
 
     @Column(length = 255, nullable = false)
     private String title;
     
-    @Column(length = 200)
+    @Column(length = 500)
     private String description;
     
     @Column(length = 200)

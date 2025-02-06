@@ -59,8 +59,7 @@
     <nav class="navbar bg-body-tertiary">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <img src="/images/logo.png" alt="Logo" width="30" height="24">
-                MainBoard
+                <p onclick="location.href='mainBoard.do'">✌️ 수업 예약 사이트 </p>
             </a>
 
             <c:choose>
@@ -102,12 +101,8 @@
             <div class="card mb-3" style="max-width: 1080px; height:250px;">
                 <div class="row g-0">
                     <div class="col-md-4">
-						<img src="${lesson.photoPath}" class="img-fluid rounded-start" alt="수업 이미지">
-
-<!--
-                        <img src="${sessionScope.uploadedImage}" class="img-fluid rounded-start" alt="수업 이미지">
--->           
-						</div>
+						<img src="/images/${lesson.photoPath}" class="img-fluid rounded-start" alt="수업 이미지">					
+					</div>
                     <div class="col-md-8">
                         <div class="card-body">
                             <h5 class="card-title">${lesson.title}</h5>

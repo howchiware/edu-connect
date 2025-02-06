@@ -22,7 +22,7 @@ public class LessonrequestsDao {
         System.out.println("addLessonRequest() start");
 
         String sql = "INSERT INTO lessonrequests (userId, userName, teacherId, teacherName, lessonName, lessonId, requestsStatus, requestDate, selectedTime) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             jdbcTemplate.update(sql,
                 lessonRequest.getUserId(),

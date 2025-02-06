@@ -12,7 +12,9 @@ public class EnquirytableBoardDo {
 
     private int lessonId;
     private String title;
+    private String title_teacher;
     private String content;
+    private String content_teacher;
     private String userId;
     private String teacherId;
 
@@ -21,74 +23,113 @@ public class EnquirytableBoardDo {
     }
 
 
-    public EnquirytableBoardDo(int num, int lessonId, String title, String content, String userId, String teacherId) {
-        this.num = num;
-        this.lessonId = lessonId;
-        this.title = title;
-        this.content = content;
-        this.userId = userId;
-        this.teacherId = teacherId;
-    }
+	public int getNum() {
+		return num;
+	}
 
-    // Getter & Setter
-    public int getNum() {
-        return num;
-    }
 
-    public void setNum(int num) {
-        this.num = num;
-    }
+	public void setNum(int num) {
+		this.num = num;
+	}
 
-    public int getLessonId() {
-        return lessonId;
-    }
 
-    public void setLessonId(int lessonId) {
-        this.lessonId = lessonId;
-    }
+	public int getLessonId() {
+		return lessonId;
+	}
 
-    public String getTitle() {
-        return title;
-    }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+	public void setLessonId(int lessonId) {
+		this.lessonId = lessonId;
+	}
 
-    public String getContent() {
-        return content;
-    }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
+	public String getTitle() {
+		return title;
+	}
 
-    public String getUserId() {
-        return userId;
-    }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
-    public String getTeacherId() {
-        return teacherId;
-    }
 
-    public void setTeacherId(String teacherId) {
-        this.teacherId = teacherId;
-    }
+	public String getTitle_teacher() {
+		return title_teacher;
+	}
 
-    // toString 메서드
-    @Override
-    public String toString() {
-        return "EnquirytableBoardDo{" +
-                "num=" + num +
-                ", lessonId=" + lessonId +
-                ", title='" + title + '\'' +
-                ", content='" + content + '\'' +
-                ", userId='" + userId + '\'' +
-                ", teacherId='" + teacherId + '\'' +
-                '}';
-    }
+
+	public void setTitle_teacher(String title_teacher) {
+		this.title_teacher = title_teacher;
+	}
+
+
+	public String getContent() {
+		return content;
+	}
+
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+
+	public String getContent_teacher() {
+		return content_teacher;
+	}
+
+
+	public void setContent_teacher(String content_teacher) {
+		this.content_teacher = content_teacher;
+	}
+
+
+	public String getUserId() {
+		return userId;
+	}
+
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+
+	public String getTeacherId() {
+		return teacherId;
+	}
+
+
+	public void setTeacherId(String teacherId) {
+		this.teacherId = teacherId;
+	}
+
+
+	public EnquirytableBoardDo(int num, int lessonId, String title, String title_teacher, String content,
+			String content_teacher, String userId, String teacherId) {
+		super();
+		this.num = num;
+		this.lessonId = lessonId;
+		this.title = title;
+		this.title_teacher = title_teacher;
+		this.content = content;
+		this.content_teacher = content_teacher;
+		this.userId = userId;
+		this.teacherId = teacherId;
+	}
+
+
+	@Override
+	public String toString() {
+		return "EnquirytableBoardDo [num=" + num + ", lessonId=" + lessonId + ", title=" + title + ", title_teacher="
+				+ title_teacher + ", content=" + content + ", content_teacher=" + content_teacher + ", userId=" + userId
+				+ ", teacherId=" + teacherId + "]";
+	}
+
+
+	
+
+
+
+    
+    
+    
 }

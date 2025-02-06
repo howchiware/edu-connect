@@ -62,17 +62,19 @@ public class BoardDao {
 
 		try {
 			// 데이터 삽입
-			jdbcTemplate.update(sql, ldo.getPhoto() != null ? ldo.getPhoto() : new byte[0],  
+			jdbcTemplate.update(sql, 
+					ldo.getPhoto() != null ? ldo.getPhoto() : new byte[0],  
 					ldo.getPhotoPath(),
 					ldo.getTitle(), 
 					ldo.getDescription() != null ? ldo.getDescription() : "", 
 					ldo.getTime(), 
 					ldo.getPeople() != null ? ldo.getPeople() : 0, 
-					ldo.getTeacherId(), ldo.getTeacherName(), ldo.getLessonId()
+					ldo.getTeacherId(), 
+					ldo.getTeacherName(), 
+					ldo.getLessonId()
 					
 			);
 			
-
 			System.out.println("addLessonBoard() - 수업 추가 완료");
 
 			// 생성된 PK(lessonId) 가져오기
@@ -82,7 +84,7 @@ public class BoardDao {
 			return lessonId; // 생성된 lessonId 반환
 		} catch (Exception e) {
 			System.err.println("Failed to add lesson: " + e.getMessage());
-			throw e; // 예외를 다시 던짐
+			throw e;
 		}
 	}
 
@@ -135,7 +137,7 @@ public class BoardDao {
 		} catch (Exception e) {
 			System.err.println("Error fetching lessons by teacherId: " + e.getMessage());
 			e.printStackTrace();
-			throw e; // 예외를 다시 던져 호출한 곳에서 처리할 수 있도록 설정
+			throw e;
 		}
 	}
 	
@@ -149,7 +151,7 @@ public class BoardDao {
 			System.out.println("deleteLesson() - 수업 삭제 완료");
 		} catch (Exception e) {
 			System.err.println("Failed to delete lesson: " + e.getMessage());
-			throw e; // 예외를 다시 던짐
+			throw e;
 		}
 	}
 	
@@ -199,13 +201,20 @@ public class BoardDao {
 	}
 
 
-
+	
 	public void insertenquiryBoard(EnquirytableBoardDo edo) {
-		System.out.println("EnquirytableBoardDo");
+		System.out.println("insertenquiryBoard");
 		
 		String sql = "INSERT INTO enquirytable (title, content, userId, teacherId) VALUES (?, ?, ?, ?)";
 		jdbcTemplate.update(sql, edo.getTitle(), edo.getContent(), edo.getUserId(), edo.getTeacherId());
 
+	}
+	
+	public void teachermessageBoard(EnquirytableBoardDo edo) {
+		System.out.println("teachermessageBoard");
+		
+		String sql = "insert into enquirytable (title_teacher, content_teacher, userId, teacherId) values (?, ?, ?, ?)";
+		jdbcTemplate.update(sql, edo.getTitle_teacher(), edo.getContent_teacher(), edo.getUserId(), edo.getTeacherId());
 	}
 	
 	public List<EnquirytableBoardDo> getEnquiriesByTeacherId(String teacherId) {
@@ -217,6 +226,20 @@ public class BoardDao {
 	    String sql = "SELECT * FROM enquirytable WHERE userId = ?";
 	    return jdbcTemplate.query(sql, new Object[] { userId }, new BeanPropertyRowMapper<>(EnquirytableBoardDo.class));
 	}
+	
+	public EnquirytableBoardDo getEnquiryByNum(int num) {
+	    String sql = "SELECT * FROM enquirytable WHERE num = ?";
+	    
+	    try {
+	        return jdbcTemplate.queryForObject(sql, new Object[]{num}, new BeanPropertyRowMapper<>(EnquirytableBoardDo.class));
+	    } catch (EmptyResultDataAccessException e) {
+	        System.out.println("❌ [DB 조회 실패] enquirytable에서 num = " + num + "인 문의를 찾을 수 없습니다.");
+	        return null;
+	    }
+	}
+
+
+	
 	
 	
 	// 수업 수정하는 메소드
@@ -306,11 +329,32 @@ class LessonRowMapper implements RowMapper<LessonDo> {
 	public LessonDo mapRow(ResultSet rs, int rowNum) throws SQLException {
 		LessonDo lesson = new LessonDo();
 		lesson.setNum(rs.getInt("num"));
+		//photo type 확인하고 추가하기
+		lesson.setPhotoPath(rs.getString("photoPath"));
 		lesson.setTitle(rs.getString("title"));
 		lesson.setDescription(rs.getString("description"));
+		lesson.setTime(rs.getString("time"));
+		lesson.setPeople(rs.getInt("people"));
 		lesson.setTeacherId(rs.getString("teacherId"));
 		lesson.setTeacherName(rs.getString("teacherName"));
 		lesson.setLessonId(rs.getInt("lessonId"));
 		return lesson;
+	}
+}
+
+class EnquiryRowMapper implements RowMapper<EnquirytableBoardDo> {
+	@Override
+	public EnquirytableBoardDo mapRow(ResultSet rs, int rowNum) throws SQLException {
+		EnquirytableBoardDo enquiry = new EnquirytableBoardDo();
+		enquiry.setNum(rs.getInt("num"));
+		enquiry.setLessonId(rs.getInt("lessonId"));
+		enquiry.setTitle(rs.getString("title"));
+		enquiry.setTitle_teacher(rs.getString("title_teacher"));
+		enquiry.setContent(rs.getString("content"));
+		enquiry.setContent_teacher(rs.getString("content_teacher"));
+		enquiry.setUserId(rs.getString("userId"));
+		enquiry.setTeacherId(rs.getString("teacherId"));
+		
+		return enquiry;
 	}
 }

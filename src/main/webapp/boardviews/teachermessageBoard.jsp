@@ -61,64 +61,49 @@
     </style>
 </head>
 <body>
-	<a class="navbar-brand" href="#">
-	    <p onclick="location.href='mainBoard.do'">✌️ 수업 예약 사이트 </p>
-	</a>
     <div class="container">
 		
-		<p>${lesson.photoPath}</p>
 
-        <!-- Photo Section -->
-        <div class="photo">
-			<img src="/images/${lesson.photoPath}" class="img-fluid rounded-start" alt="수업 이미지">	
-        </div>
-
-		
-        <!-- Details Section -->
-		<div class="details">
-	    	<div class="title">
-		        <strong>Title:</strong> <span>${lesson.title}</span>
-		    </div>
-		    <div class="teacherId">
-		        <strong>Teacher ID:</strong> <span>${lesson.teacherId}</span>
-		    </div>
-		    <div class="description">
-		        <strong>Description:</strong>
-		        <p>${lesson.description}</p>
-		    </div>
-		</div>
-
-        <!-- Timetable Section
-        <div class="timetable">
-            <h2>Timetable Section</h2>
-            <p>This part is not implemented yet but can be extended later.</p>
-        </div>
-		-->
-        <!-- Board Section -->		
+		<!-- 답변 작성하기-->	
 		<div class="board">
-		    <h2>문의 작성하기</h2>
-		    <form action="insertenquiryProcBoard.do" method="post">
-				<div>
-					<input type="hidden" name="teacherId" value="${lesson.teacherId}">
-					<input type="hidden" name="userId" value="${sessionScope.loginId}">
-					<input type="hidden" name="num" value="${lesson.num}">
-					<input type="hidden" name="lessonId" value="${lesson.lessonId}">
-				</div>				
-				<div class="input-group mb-3">
-					<span class="input-group-text" id="inputGroup-sizing-default">제목</span>
-					 <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default"
-					  	name="title">
-				</div>		
+		    <h2>답변 작성하기</h2>
+		    <form action="teachermessageProcBoard.do" method="post">
+		        <div>
+		            <input type="hidden" name="teacherId" value="${enquiry.teacherId}">
+					<!-- <input type="hidden" name="userId" value="${sessionScope.loginId}"> -->
+		            <input type="hidden" name="userId" value="${enquiry.userId}">
+		            <input type="hidden" name="num" value="${enquiry.num}">
+		        </div>
+		        <div class="input-group mb-3">
+		            <span class="input-group-text" id="inputGroup-sizing-default">제목</span>
+		            <!-- 제목을 value로 입력 -->
+		            <input type="text" class="form-control" aria-label="Sizing example input" 
+		                aria-describedby="inputGroup-sizing-default" name="title" value="${enquiry.title}" readonly>
+		        </div>        
 				<div class="input-group mb-3">
 					<span class="input-group-text" id="inputGroup-sizing-default">내용</span>
 					 <input type="content" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default"
-					  	name="content">
+					  	name="content" value="${enquiry.content}" readonly>
 				</div>
+				<!-- 사용자 본인의 게시글은 숨기기 -->
+				<c:if test="${enquiry.userId != sessionScope.loginId}">
+				    <!-- 강사 답변 -->
+				    <div class="input-group mb-3">
+				        <span class="input-group-text" id="inputGroup-sizing-default">제목_선생님</span>
+				         <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default"
+				          	name="content_teacher">
+				    </div>                
+				    <div class="input-group mb-3">
+				        <span class="input-group-text" id="inputGroup-sizing-default">내용_선생님</span>
+				         <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default"
+				          	name="title_teacher">
+				    </div>
+				</c:if>
 
-				
-		        <button type="submit">문의 등록</button>
+		        <button type="submit">답변 등록</button>
 		    </form>
 		</div>
+
 
     </div>
 </body>
