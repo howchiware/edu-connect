@@ -256,8 +256,7 @@ public class BoardController {
     }
 
    
-    private static final String UPLOAD_DIR = String UPLOAD_DIR = "C:/haeun_java_workspace/spring/workspace/reservationsite/src/main/resources/static/images/";
-
+    private static final String UPLOAD_DIR = "C:/haeun_java_workspace/spring/workspace/reservationsite/src/main/resources/static/images";
 
     @RequestMapping(value = "/addlessonBoard.do")
     public String addlessonBoard() {
@@ -270,7 +269,7 @@ public class BoardController {
             @RequestParam(value = "photo", required = false) MultipartFile photo,
             @RequestParam(value = "title") String title,
             @RequestParam(value = "description") String description,
-            @RequestParam(value = "time") LessonDo.TimeType time,
+            @RequestParam(value = "time") String time,
             @RequestParam(value = "people", defaultValue = "0") Integer people,
             HttpSession session,
             Model model
@@ -297,6 +296,13 @@ public class BoardController {
                 // 업로드할 디렉토리 (C:/upload/)
                 String UPLOAD_DIR = "C:/haeun_java_workspace/spring/workspace/reservationsite/src/main/resources/static/images/";
                 
+                // 폴더가 없으면 생성
+                File uploadDir = new File(UPLOAD_DIR);
+                if (!uploadDir.exists()) {
+                    uploadDir.mkdirs();  // 폴더 생성
+                    System.out.println("📂 업로드 폴더 생성: " + UPLOAD_DIR);
+                }
+                
                 // 파일명 생성 (UUID + 원래 파일명)
                 String fileName = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
                 File saveFile = new File(UPLOAD_DIR + fileName);
@@ -305,11 +311,11 @@ public class BoardController {
                 photo.transferTo(saveFile);
 
                 // DB에 저장할 웹 경로 설정
-                ldo.setPhotoPath("C:/haeun_java_workspace/spring/workspace/reservationsite/src/main/resources/static/images/" + fileName);
+                ldo.setPhotoPath("/images/" + fileName);
                 System.out.println("✅ 사진 저장 완료: " + ldo.getPhotoPath());
             } else {
                 // 사진이 없을 경우 기본 이미지 경로 설정
-                ldo.setPhotoPath("C:/haeun_java_workspace/spring/workspace/reservationsite/src/main/resources/static/images/lesson_1.jpg");
+            	ldo.setPhotoPath("/images/lesson_1.jpg");
                 System.out.println("⚠️ 사진이 없어 기본 이미지 사용");
             }
 

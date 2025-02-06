@@ -10,6 +10,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>수업 추가</title>
 </head>
+
+
 <body>
     <div class="container mt-5">
         <h2 class="mb-4">수업 추가</h2>
@@ -39,17 +41,19 @@
                 <textarea class="form-control" id="description" name="description" maxlength="200" rows="3" required></textarea>
             </div>
             <!-- 시간 -->
-            <div class="mb-3">
-                <label for="time" class="form-label">수업 시간</label>
-                <select class="form-select" id="time" name="time" required>
-                    <option value="" disabled selected>시간 선택</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                </select>
-            </div>
+			<div class="mb-3">
+			    <label for="time" class="form-label">수업 시간</label>
+			    <select class="form-select" id="time" name="time" required>
+			        <option value="" disabled selected>시간 선택</option>
+			        <option value="A">A</option>
+			        <option value="B">B</option>
+			        <option value="C">C</option>
+			    </select>
+			</div>
             <!-- 참여 인원 -->
             <div class="mb-3">
+				
+
                 <label for="people" class="form-label">참여 인원</label>
                 <input type="number" class="form-control" id="people" name="people" min="1" max="100" required>
             </div>

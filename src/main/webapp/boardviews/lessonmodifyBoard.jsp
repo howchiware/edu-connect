@@ -31,7 +31,7 @@
             <!-- 제목 -->
             <div class="mb-3">
                 <label for="title" class="form-label">수업 제목</label>
-                <input type="text" class="form-control" id="title" name="title" maxlength="50" required>
+                <input type="text" class="form-control" id="title" name="title" maxlength="50" value="${lesson.lessonName}" required>
             </div>
             <!-- 설명 -->
             <div class="mb-3">

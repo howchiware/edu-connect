@@ -15,18 +15,17 @@ public class LessonDo {
     @Lob
     private byte[] photo;
     
-    @Column(name = "photo_path")
+    @Column(name = "photoPath")
     private String photoPath;    
 
-    @Column(length = 50, nullable = false)
+    @Column(length = 255, nullable = false)
     private String title;
     
     @Column(length = 200)
     private String description;
     
-    @Enumerated(EnumType.STRING) // ENUM 필드 매핑
-    @Column(nullable = false)
-    private TimeType time;
+    @Column(length = 200)
+    private String time;
 
     private Integer people;
 
@@ -39,94 +38,111 @@ public class LessonDo {
     
     private int lessonId;
 
-    // ENUM 정의
-    public enum TimeType {
-        A, B, C
-    }
 
 	public LessonDo() {
 		
 	}
 
+
 	public int getNum() {
 		return num;
 	}
+
 
 	public void setNum(int num) {
 		this.num = num;
 	}
 
+
 	public byte[] getPhoto() {
 		return photo;
 	}
+
 
 	public void setPhoto(byte[] photo) {
 		this.photo = photo;
 	}
 
+
 	public String getPhotoPath() {
 		return photoPath;
 	}
+
 
 	public void setPhotoPath(String photoPath) {
 		this.photoPath = photoPath;
 	}
 
+
 	public String getTitle() {
 		return title;
 	}
+
 
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
+
 	public String getDescription() {
 		return description;
 	}
+
 
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
-	public TimeType getTime() {
+
+	public String getTime() {
 		return time;
 	}
 
-	public void setTime(TimeType time) {
+
+	public void setTime(String time) {
 		this.time = time;
 	}
+
 
 	public Integer getPeople() {
 		return people;
 	}
 
+
 	public void setPeople(Integer people) {
 		this.people = people;
 	}
+
 
 	public String getTeacherId() {
 		return teacherId;
 	}
 
+
 	public void setTeacherId(String teacherId) {
 		this.teacherId = teacherId;
 	}
+
 
 	public String getTeacherName() {
 		return teacherName;
 	}
 
+
 	public void setTeacherName(String teacherName) {
 		this.teacherName = teacherName;
 	}
+
 
 	public int getLessonId() {
 		return lessonId;
 	}
 
+
 	public void setLessonId(int lessonId) {
 		this.lessonId = lessonId;
 	}
+
 
 	@Override
 	public String toString() {
@@ -135,7 +151,8 @@ public class LessonDo {
 				+ teacherId + ", teacherName=" + teacherName + ", lessonId=" + lessonId + "]";
 	}
 
-	public LessonDo(int num, byte[] photo, String photoPath, String title, String description, TimeType time,
+
+	public LessonDo(int num, byte[] photo, String photoPath, String title, String description, String time,
 			Integer people, String teacherId, String teacherName, int lessonId) {
 		super();
 		this.num = num;
@@ -150,8 +167,4 @@ public class LessonDo {
 		this.lessonId = lessonId;
 	}
 
-	
-	
-
-    
 }

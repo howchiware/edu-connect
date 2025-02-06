@@ -57,18 +57,21 @@ public class BoardDao {
 	public int addLessonBoard(LessonDo ldo) {
 		System.out.println("addLessonBoard() start");
 
-		String sql = "INSERT INTO lessontable (photoPath, title, description, time, people, teacherId, teacherName, lessonId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO lessontable (photo, photoPath, title, description, time, people, teacherId, teacherName, lessonId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		String generatedKeyQuery = "SELECT LAST_INSERT_ID()"; // MySQL에서 자동 생성된 PK(lessonId)) 가져오기
 
 		try {
 			// 데이터 삽입
 			jdbcTemplate.update(sql, ldo.getPhoto() != null ? ldo.getPhoto() : new byte[0],  
 					ldo.getPhotoPath(),
-					ldo.getTitle(), ldo.getDescription() != null ? ldo.getDescription() : "", 
-					ldo.getTime().name(), ldo.getPeople() != null ? ldo.getPeople() : 0, 
-					ldo.getTeacherId(), ldo.getTeacherName()
+					ldo.getTitle(), 
+					ldo.getDescription() != null ? ldo.getDescription() : "", 
+					ldo.getTime(), 
+					ldo.getPeople() != null ? ldo.getPeople() : 0, 
+					ldo.getTeacherId(), ldo.getTeacherName(), ldo.getLessonId()
 					
 			);
+			
 
 			System.out.println("addLessonBoard() - 수업 추가 완료");
 
@@ -106,11 +109,22 @@ public class BoardDao {
 					lesson.setPhoto(rs.getBytes("photo"));
 					lesson.setTitle(rs.getString("title"));
 					lesson.setDescription(rs.getString("description"));
-					lesson.setTime(LessonDo.TimeType.valueOf(rs.getString("time")));
+					lesson.setTime(rs.getString("time"));
 					lesson.setPeople(rs.getObject("people") != null ? rs.getInt("people") : null); // null 처리
 					lesson.setTeacherId(rs.getString("teacherId"));
 					lesson.setTeacherName(rs.getString("teacherName"));
-					return lesson;
+					
+					// 예외 처리 추가: people 값이 이상하면 null 처리
+	                try {
+	                    int people = rs.getInt("people");
+	                    lesson.setPeople(people);
+	                } catch (SQLException e) {
+	                    lesson.setPeople(null);  // people 값이 이상하면 null 처리
+	                }
+	                
+	                lesson.setTeacherId(rs.getString("teacherId"));
+	                lesson.setTeacherName(rs.getString("teacherName"));
+	                return lesson;
 				}
 			});
 
@@ -225,14 +239,19 @@ public class BoardDao {
 	public List<LessonDo> getBoardList() {
 	    System.out.println("getBoardList()");
 
-	    String sql = "SELECT num, title, teacherId, teacherName, description, lessonId FROM lessontable"; // 🔥 num 추가 확인
+	    String sql = "SELECT num, photoPath, title, description, time, people, teacherId, teacherName, lessonId FROM lessontable"; // 🔥 num 추가 확인
 	    return jdbcTemplate.query(sql, (rs, rowNum) -> {
 	        LessonDo lesson = new LessonDo();
-	        lesson.setNum(rs.getInt("num"));  // 🔥 반드시 추가
+	        lesson.setNum(rs.getInt("num"));
+	        lesson.setPhotoPath(rs.getString("photoPath"));
 	        lesson.setTitle(rs.getString("title"));
+	        lesson.setDescription(rs.getString("description"));
+	        lesson.setTime(rs.getString("time"));
+	        lesson.setPeople(rs.getInt("people"));
 	        lesson.setTeacherId(rs.getString("teacherId"));
 	        lesson.setTeacherName(rs.getString("teacherName"));
-	        lesson.setDescription(rs.getString("description"));
+	        lesson.setLessonId(rs.getInt("lessonId"));
+
 	        return lesson;
 	    });
 	}
