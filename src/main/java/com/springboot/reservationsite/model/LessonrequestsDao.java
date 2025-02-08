@@ -17,7 +17,7 @@ public class LessonrequestsDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // 🔹 1. 강의 신청 요청 추가
+    // 강의 신청 요청 추가
     public void addLessonRequest(LessonrequestsDo lessonRequest) {
         System.out.println("addLessonRequest() start");
 
@@ -35,27 +35,27 @@ public class LessonrequestsDao {
                 Timestamp.valueOf(lessonRequest.getRequestDate()),
                 lessonRequest.getSelectedTime()
             );
-            System.out.println("✅ addLessonRequest() - 요청 추가 완료");
+            System.out.println("addLessonRequest() - 요청 추가 완료");
         } catch (Exception e) {
-            System.err.println("❌ Failed to add lesson request: " + e.getMessage());
+            System.err.println("Failed to add lesson request: " + e.getMessage());
             e.printStackTrace();
             throw e;
         }
     }
 
-    // 🔹 2. 예약 상태 변경 (승인/거절/취소)
+    // 예약 상태 변경
     public boolean updateRequestStatus(int num, LessonrequestsDo.RequestsStatus status) {
         String sql = "UPDATE lessonrequests SET requestsStatus = ? WHERE num = ?";
         try {
             int rowsAffected = jdbcTemplate.update(sql, status.toString(), num);
             return rowsAffected > 0;
         } catch (Exception e) {
-            System.err.println("❌ SQL 오류: " + e.getMessage());
+            System.err.println("SQL 오류: " + e.getMessage());
             return false;
         }
     }
 
-    // 🔹 3. 사용자의 예약 목록 조회 (PENDING, REJECTED)
+    // 사용자의 예약 목록 조회 (PENDING, REJECTED)
     public List<LessonrequestsDo> getPendingOrRejectedLessonsByUserId(String userId) {
         String sql = "SELECT * FROM lessonrequests WHERE userId = ? AND requestsStatus IN ('PENDING', 'REJECTED')";
 
@@ -73,7 +73,7 @@ public class LessonrequestsDao {
         });
     }
 
-    // 🔹 4. 사용자의 승인된 강의 조회 (ACCEPTED)
+    // 사용자의 승인된 강의 조회 (ACCEPTED)
     public List<LessonrequestsDo> getAcceptedLessonsByUserId(String userId) {
         String sql = "SELECT * FROM lessonrequests WHERE userId = ? AND requestsStatus = 'ACCEPTED'";
 
@@ -91,11 +91,11 @@ public class LessonrequestsDao {
         });
     }
 
-    // 🔹 5. 특정 강사의 예약 목록 조회
+    // 특정 강사의 예약 목록 조회
     public List<LessonrequestsDo> getLessonRequestsByTeacherId(String teacherId) {
         String sql = "SELECT num, lessonId, lessonName, userId, userName, requestsStatus, requestDate, selectedTime FROM lessonrequests WHERE teacherId = ?";
-        System.out.println("📋 실행할 SQL: " + sql);
-        System.out.println("📋 teacherId 값: " + teacherId);
+        System.out.println("실행할 SQL: " + sql);
+        System.out.println("teacherId 값: " + teacherId);
 
         try {
             return jdbcTemplate.query(sql, new Object[]{teacherId}, new RowMapper<LessonrequestsDo>() {
@@ -114,23 +114,24 @@ public class LessonrequestsDao {
                 }
             });
         } catch (Exception e) {
-            System.err.println("❌ 수강 요청 목록 조회 중 오류 발생: " + e.getMessage());
-            return List.of(); // 오류 발생 시 빈 리스트 반환
+            System.err.println("수강 요청 목록 조회 중 오류 발생: " + e.getMessage());
+            return List.of();
         }
     }
 
-    // 🔹 6. 강의 신청 취소
+    // 강의 신청 취소
     public void cancelLessonRequest(int num) {
         String sql = "UPDATE lessonrequests SET requestsStatus = 'CANCEL' WHERE num = ?";
         jdbcTemplate.update(sql, num);
     }
 
-    // 🔹 7. 강의 신청 기록 삭제 (강의 삭제 시 함께 제거)
+    // 강의 신청 기록 삭제 (강의 삭제 시 함께 제거)
     public void deleteLessonRequestsByLessonId(int lessonId) {
         String sql = "DELETE FROM lessonrequests WHERE lessonId = ?";
         jdbcTemplate.update(sql, lessonId);
     }
     
+    // 특정 유저의 예약 목록 조회
     public List<LessonrequestsDo> getUserLessonRequests(String userId) {
         String sql = "SELECT * FROM lessonrequests WHERE userId = ?";
         return jdbcTemplate.query(sql, new Object[]{userId}, new RowMapper<LessonrequestsDo>() {
@@ -152,7 +153,7 @@ public class LessonrequestsDao {
         });
     }
     
-    // 🔹 특정 강사의 예약 목록 조회
+    // 특정 강사의 예약 목록 조회
     public List<LessonrequestsDo> getTeacherLessonRequests(String teacherId) {
         String sql = "SELECT * FROM lessonrequests WHERE teacherId = ?";
         return jdbcTemplate.query(sql, new Object[]{teacherId}, new RowMapper<LessonrequestsDo>() {

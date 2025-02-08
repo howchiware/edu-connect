@@ -30,7 +30,7 @@ public class BoardDao {
 
 		String sql = "INSERT INTO usertable (id, pwd, name, lesson, level, role) VALUES (?, ?, ?, ?, ?, ?)";
 		jdbcTemplate.update(sql, udo.getId(), udo.getPwd(), udo.getName(), udo.getLesson(), udo.getLevel(),
-				udo.getRole().name() // Enum을 문자열로 변환
+				udo.getRole().name()
 		);
 	}
 
@@ -41,7 +41,6 @@ public class BoardDao {
 		String sql = "SELECT * FROM usertable WHERE id = ? AND pwd = ?";
 		
 		try {
-			 
 			return jdbcTemplate.queryForObject(sql, new Object[] { id, pwd }, new BeanPropertyRowMapper<>(UserBoardDo.class));
 		
 		} catch (EmptyResultDataAccessException e) {
@@ -58,10 +57,9 @@ public class BoardDao {
 		System.out.println("addLessonBoard() start");
 
 		String sql = "INSERT INTO lessontable (photo, photoPath, title, description, time, people, teacherId, teacherName, lessonId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		String generatedKeyQuery = "SELECT LAST_INSERT_ID()"; // MySQL에서 자동 생성된 PK(lessonId)) 가져오기
+		String generatedKeyQuery = "SELECT LAST_INSERT_ID()";
 
 		try {
-			// 데이터 삽입
 			jdbcTemplate.update(sql, 
 					ldo.getPhoto() != null ? ldo.getPhoto() : new byte[0],  
 					ldo.getPhotoPath(),
@@ -81,7 +79,7 @@ public class BoardDao {
 			int lessonId = jdbcTemplate.queryForObject(generatedKeyQuery, Integer.class);
 			System.out.println("Generated lessonId: " + lessonId);
 
-			return lessonId; // 생성된 lessonId 반환
+			return lessonId;
 		} catch (Exception e) {
 			System.err.println("Failed to add lesson: " + e.getMessage());
 			throw e;
@@ -116,12 +114,11 @@ public class BoardDao {
 					lesson.setTeacherId(rs.getString("teacherId"));
 					lesson.setTeacherName(rs.getString("teacherName"));
 					
-					// 예외 처리 추가: people 값이 이상하면 null 처리
 	                try {
 	                    int people = rs.getInt("people");
 	                    lesson.setPeople(people);
 	                } catch (SQLException e) {
-	                    lesson.setPeople(null);  // people 값이 이상하면 null 처리
+	                    lesson.setPeople(null);
 	                }
 	                
 	                lesson.setTeacherId(rs.getString("teacherId"));
@@ -165,22 +162,23 @@ public class BoardDao {
 	            @Override
 	            public LessonDo mapRow(ResultSet rs, int rowNum) throws SQLException {
 	                LessonDo lesson = new LessonDo();
-	                lesson.setNum(rs.getInt("num"));  // ✅ 올바른 테이블에서 데이터 가져오기
+	                lesson.setNum(rs.getInt("num"));
 	                lesson.setTitle(rs.getString("title"));
 	                lesson.setTeacherId(rs.getString("teacherId"));
 	                lesson.setTeacherName(rs.getString("teacherName"));
 	                lesson.setDescription(rs.getString("description"));
 
-	                System.out.println("✅ Lesson retrieved: " + lesson.getTitle());
+	                System.out.println("Lesson retrieved: " + lesson.getTitle());
 	                return lesson;
 	            }
 	        });
 	    } catch (EmptyResultDataAccessException e) {
-	        System.out.println("❌ [DB 조회 실패] lessontable에서 num = " + num + "인 강의를 찾을 수 없습니다.");
+	        System.out.println("[DB 조회 실패] lessontable에서 num = " + num + "인 강의를 찾을 수 없습니다.");
 	        return null;
 	    }
 	}
 	
+	// 사용자 id 얻기
 	public UserBoardDo getUserById(String id) {
 	    String sql = "SELECT * FROM usertable WHERE id = ?";
 	    try {
@@ -191,7 +189,7 @@ public class BoardDao {
 	    }
 	}
 
-
+	// 사용자 정보 수정
 	public void usermodifyBoard(UserBoardDo udo) {
 		System.out.println("usermodifyBoard() start");
 		
@@ -200,8 +198,6 @@ public class BoardDao {
 		jdbcTemplate.update(sql, udo.getPwd(), udo.getName(), udo.getNum());
 	}
 
-
-	
 	public void insertenquiryBoard(EnquirytableBoardDo edo) {
 		System.out.println("insertenquiryBoard");
 		
@@ -233,21 +229,22 @@ public class BoardDao {
 	    try {
 	        return jdbcTemplate.queryForObject(sql, new Object[]{num}, new BeanPropertyRowMapper<>(EnquirytableBoardDo.class));
 	    } catch (EmptyResultDataAccessException e) {
-	        System.out.println("❌ [DB 조회 실패] enquirytable에서 num = " + num + "인 문의를 찾을 수 없습니다.");
+	        System.out.println("[DB 조회 실패] enquirytable에서 num = " + num + "인 문의를 찾을 수 없습니다.");
 	        return null;
 	    }
 	}
 
-
-	
-	
-	
 	// 수업 수정하는 메소드
 	public void lessonmodifyBoard(LessonDo ldo) {
-		System.out.println("lessonmodifyBoard()");
-		
-		String sql = "update lessontable set photo=?, photoPath=? title=?, description=?, time=?, people=? where num=?";
-		jdbcTemplate.update(sql, ldo.getPhoto(), ldo.getPhotoPath(), ldo.getTitle(), ldo.getDescription(), ldo.getTime(), ldo.getPeople(), ldo.getNum());
+	    System.out.println("lessonmodifyBoard()");
+
+	    String sql = "UPDATE lessontable SET photo=?, photoPath=?, title=?, description=?, time=?, people=? WHERE num=?";
+	    System.out.println("SQL Query: " + sql);  // SQL 쿼리 확인
+	    System.out.println("Parameters: " + ldo.getPhoto() + ", " + ldo.getPhotoPath() + ", " + ldo.getTitle() + ", " + ldo.getDescription() + ", " + ldo.getTime() + ", " + ldo.getPeople() + ", " + ldo.getNum());
+	    
+	    int rowsAffected = jdbcTemplate.update(sql, ldo.getPhoto(), ldo.getPhotoPath(), ldo.getTitle(), ldo.getDescription(), ldo.getTime(), ldo.getPeople(), ldo.getNum());
+	    
+	    System.out.println("Rows Affected: " + rowsAffected); // 업데이트된 행 수 출력
 	}
 
 
@@ -258,7 +255,7 @@ public class BoardDao {
 
 
 	
-
+	// 전체 레코드
 	public List<LessonDo> getBoardList() {
 	    System.out.println("getBoardList()");
 
@@ -289,16 +286,32 @@ public class BoardDao {
 		return jdbcTemplate.queryForObject(sql, args, new UserRowMapper() );
 	}
 	
+	/*
 	// 한 개의 수업 레코드 가져오는 메소드
 	public LessonDo getBoard(LessonDo temp) {
 		System.out.println("getBoard()");
-		
+
 		String sql = "select * from lessontable where num=?";
 		
 		Object[] args = {temp.getNum()};
 		return jdbcTemplate.queryForObject(sql, args, new LessonRowMapper() );
+		
+
 	}
-	
+	*/
+	public LessonDo getBoard(LessonDo temp) {
+	    System.out.println("getBoard()");
+
+	    String sql = "SELECT * FROM lessontable WHERE num=?";
+	    
+	    Object[] args = {temp.getNum()};
+	    
+	    // num 값 출력해서 확인
+	    System.out.println("Fetching lesson with num: " + temp.getNum());
+
+	    return jdbcTemplate.queryForObject(sql, args, new LessonRowMapper());
+	}
+
 	
 
 
