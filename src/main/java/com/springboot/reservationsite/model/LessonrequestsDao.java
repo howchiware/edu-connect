@@ -35,6 +35,9 @@ public class LessonrequestsDao {
                 Timestamp.valueOf(lessonRequest.getRequestDate()),
                 lessonRequest.getSelectedTime()
             );
+            
+
+
             System.out.println("addLessonRequest() - 요청 추가 완료");
         } catch (Exception e) {
             System.err.println("Failed to add lesson request: " + e.getMessage());

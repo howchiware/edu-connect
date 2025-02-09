@@ -246,8 +246,18 @@ public class BoardDao {
 	    
 	    System.out.println("Rows Affected: " + rowsAffected); // 업데이트된 행 수 출력
 	}
+	
+	public LessonDo getLessonByNum(int num) {
+	    String sql = "SELECT photo, photoPath FROM lessontable WHERE num = ?";
+	    return jdbcTemplate.queryForObject(sql, new Object[]{num}, (rs, rowNum) -> {
+	        LessonDo lesson = new LessonDo();
+	        lesson.setPhoto(rs.getBytes("photo"));
+	        lesson.setPhotoPath(rs.getString("photoPath"));
+	        return lesson;
+	    });
+	}
 
-
+	
 	
 
 

@@ -41,9 +41,8 @@ public class LessonDo {
     private int lessonId;
     
     @Transient
-    private MultipartFile photoFile;  // 이 필드는 데이터베이스에 저장되지 않음
+    private MultipartFile photoFile;
 
-    // Getter와 Setter 추가
     public MultipartFile getPhotoFile() {
         return photoFile;
     }

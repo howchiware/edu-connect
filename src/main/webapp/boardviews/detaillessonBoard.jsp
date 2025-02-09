@@ -1,125 +1,94 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lesson Detail Page</title>
+    <title>수업 상세 페이지</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
+            margin: 20px;
             padding: 0;
-            background-color: #f4f4f9;
+            background-color: #f8f9fa;
         }
         .container {
-            width: 80%;
-            margin: 20px auto;
+            max-width: 600px;
+            margin: auto;
+        }
+        .section {
             background: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 15px;
             border-radius: 8px;
-            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .photo {
+        .photo img {
             width: 100%;
-            height: 300px;
-            background: #ccc;
+            height: auto;
             border-radius: 8px;
-            overflow: hidden;
-            text-align: center;
-            line-height: 300px;
-            color: #888;
-        }
-        .details {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-            margin-top: 20px;
         }
         .details div {
-            padding: 10px;
-            background: #f9f9f9;
-            border-radius: 8px;
+            margin: 5px 0;
         }
-        .timetable, .board {
-            margin-top: 30px;
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
+        .board input, .board button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        .timetable h2, .board h2 {
+        .board button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .board button:hover {
+            background-color: #0056b3;
+        }
+        h3 {
             margin-bottom: 10px;
-            font-size: 18px;
             color: #333;
-        }
-        .timetable p, .board p {
-            margin: 0;
-            color: #555;
         }
     </style>
 </head>
 <body>
-	<a class="navbar-brand" href="#">
-	    <p onclick="location.href='mainBoard.do'">✌️ 수업 예약 사이트 </p>
-	</a>
+
     <div class="container">
-		
-		<p>${lesson.photoPath}</p>
+        <h2 onclick="location.href='mainBoard.do'">✌️ 수업 예약 사이트</h2>
 
-        <!-- Photo Section -->
-        <div class="photo">
-			<img src="/images/${lesson.photoPath}" class="img-fluid rounded-start" alt="수업 이미지">	
+        <div class="section photo">
+			<img src="${pageContext.request.contextPath}/images/${lessontable.photoPath}" alt="수업 이미지">
         </div>
 
-		
-        <!-- Details Section -->
-		<div class="details">
-	    	<div class="title">
-		        <strong>Title:</strong> <span>${lesson.title}</span>
-		    </div>
-		    <div class="teacherId">
-		        <strong>Teacher ID:</strong> <span>${lesson.teacherId}</span>
-		    </div>
-		    <div class="description">
-		        <strong>Description:</strong>
-		        <p>${lesson.description}</p>
-		    </div>
-		</div>
 
-        <!-- Timetable Section
-        <div class="timetable">
-            <h2>Timetable Section</h2>
-            <p>This part is not implemented yet but can be extended later.</p>
+		<p>수업 이미지 경로: ${pageContext.request.contextPath}/images/${lessontable.photoPath}</p>
+
+
+        <div class="section details">
+            <h3>수업 정보</h3>
+            <div><strong>제목:</strong> ${lesson.title}</div>
+            <div><strong>강사:</strong> ${lesson.teacherName}</div>
+            <div><strong>설명:</strong> ${lesson.description}</div>
         </div>
-		-->
-        <!-- Board Section -->		
-		<div class="board">
-		    <h2>문의 작성하기</h2>
-		    <form action="insertenquiryProcBoard.do" method="post">
-				<div>
-					<input type="hidden" name="teacherId" value="${lesson.teacherId}">
-					<input type="hidden" name="userId" value="${sessionScope.loginId}">
-					<input type="hidden" name="num" value="${lesson.num}">
-					<input type="hidden" name="lessonId" value="${lesson.lessonId}">
-				</div>				
-				<div class="input-group mb-3">
-					<span class="input-group-text" id="inputGroup-sizing-default">제목</span>
-					 <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default"
-					  	name="title">
-				</div>		
-				<div class="input-group mb-3">
-					<span class="input-group-text" id="inputGroup-sizing-default">내용</span>
-					 <input type="content" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default"
-					  	name="content">
-				</div>
 
-				
-		        <button type="submit">문의 등록</button>
-		    </form>
-		</div>
-
+        <div class="section board">
+            <h3>문의 작성</h3>
+            <form action="insertenquiryProcBoard.do" method="post">
+                <input type="hidden" name="teacherId" value="${lesson.teacherId}">
+                <input type="hidden" name="userId" value="${sessionScope.loginId}">
+                <input type="hidden" name="num" value="${lesson.num}">
+                <input type="hidden" name="lessonId" value="${lesson.lessonId}">
+                
+                <input type="text" name="title" placeholder="제목 입력">
+                <input type="text" name="content" placeholder="내용 입력">
+                <button type="submit">문의 등록</button>
+            </form>
+        </div>
     </div>
+
 </body>
 </html>

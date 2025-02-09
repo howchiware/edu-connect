@@ -38,11 +38,41 @@ function previewImage(event) {
     #imagePreviewContainer {
         display: none; /* 처음에는 숨김 */
     }
+	body {
+	    background-color: #f8f9fa;
+	    font-family: Arial, sans-serif;
+	}
+	.container {
+	    max-width: 1080px;
+	    margin: auto;
+	}
+	.card {
+	    background: white;
+	    border-radius: 10px;
+	    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	    padding: 10px;
+	    margin-bottom: 20px;
+	}
+	.navbar {
+	    background-color: #ffffff !important;
+	    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
+	h2 {
+	    margin-bottom: 20px;
+	    color: #333;
+	}
+	.btn {
+	    border-radius: 5px;
+	}	
 </style>
 
 <body>
     <div class="container mt-5">
+		<a class="navbar-brand" href="#">
+		    <p onclick="location.href='teachermainBoard.do'">🔙 이전 페이지 </p>
+		</a>
         <h2 class="mb-4">수업 수정</h2>
+
 
         <!-- 에러 메시지 표시 -->
         <c:if test="${not empty error}">
@@ -51,27 +81,30 @@ function previewImage(event) {
             </div>
         </c:if>
 
-        <!-- 수업 수정 폼 -->
-        <form action="lessonmodifyProcBoard.do" method="post" enctype="multipart/form-data">
-            
-            <!-- 사진 업로드 -->
-            <div class="mb-3">
-                <label for="photo" class="form-label">사진 업로드</label>
-                <input type="file" class="form-control" id="photo" name="photo" accept="image/*" onchange="previewImage(event)">
-            </div>
+
+        <form action="/lessonmodifyProcBoard.do" method="post" enctype="multipart/form-data">
+			<!-- 기존 입력 필드 아래 추가 -->
+			<input type="hidden" name="num" value="${lessontable.num}">
+			<input type="hidden" name="photoPath" value="${lessontable.photoPath}">
 
             <!-- 기존 이미지 표시 -->
-            <c:if test="${not empty lessontable.photoPath}">
-                <div class="mb-3">
-                    <label class="form-label">현재 이미지</label>
-                    <img src="${lessontable.photoPath}" alt="현재 이미지" class="img-fluid" style="max-width: 100%;">
-                </div>
-            </c:if>
+			<c:if test="${not empty lessontable.photoPath}">
+			    <div class="mb-3">
+			        <p class="form-label">현재 이미지</p>
+			        <img src="${lessontable.photoPath}" alt="현재 이미지" class="img-fluid" style="max-width: 100%;">
+			    </div>
+			</c:if>
+			
+			<!-- 미리보기 이미지 -->
+			<div class="mb-3" id="imagePreviewContainer">
+			    <img id="imagePreview" src="" alt="미리보기 이미지" class="img-fluid" style="max-width: 100%;">
+			</div>
 
-            <!-- 미리보기 이미지 -->
-            <div class="mb-3" id="imagePreviewContainer">
-                <img id="imagePreview" src="" alt="미리보기 이미지" class="img-fluid" style="max-width: 100%;">
-            </div>
+
+			<div class="mb-3">
+			    <label for="photoFile" class="form-label">사진 업로드</label>
+			    <input type="file" class="form-control" id="photoFile" name="photoFile" accept="image/*" onchange="previewImage(event)">
+			</div>
 
 			<div class="mb-3">
 			    <label for="title" class="form-label">수업 제목</label>
@@ -98,10 +131,11 @@ function previewImage(event) {
 			    <input type="number" class="form-control" id="people" name="people" min="1" max="100" required value="${lessontable.people}">
 			</div>
 
+
             <!-- 제출 버튼 -->
             <div>
                 <button type="submit" class="btn btn-primary">수정</button>
-                <button class="btn btn-danger2" onclick="location.href='lessontable.do?num=${lesson.num}'">삭제</button>
+                <button type="button" class="btn btn-danger2" onclick="location.href='lessontable.do?num=${lesson.num}'">삭제</button>
             </div>
         </form>
     </div>

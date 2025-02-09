@@ -8,13 +8,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <title>수업 추가</title>
-</head>
 
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 1080px;
+            margin: auto;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .navbar {
+            background-color: #ffffff !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .btn {
+            border-radius: 5px;
+        }
+    </style>
+</head>
 
 <body>
     <div class="container mt-5">
+		<a class="navbar-brand" href="#">
+		    <p onclick="location.href='teachermainBoard.do'">🔙 이전 페이지 </p>
+		</a>
         <h2 class="mb-4">수업 추가</h2>
+		
         
         <!-- 에러 메시지 표시 -->
         <c:if test="${not empty error}">
@@ -41,19 +74,17 @@
                 <textarea class="form-control" id="description" name="description" maxlength="200" rows="3" required></textarea>
             </div>
             <!-- 시간 -->
-			<div class="mb-3">
-			    <label for="time" class="form-label">수업 시간</label>
-			    <select class="form-select" id="time" name="time" required>
-			        <option value="" disabled selected>시간 선택</option>
-			        <option value="A">A</option>
-			        <option value="B">B</option>
-			        <option value="C">C</option>
-			    </select>
-			</div>
+            <div class="mb-3">
+                <label for="time" class="form-label">수업 시간</label>
+                <select class="form-select" id="time" name="time" required>
+                    <option value="" disabled selected>시간 선택</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                </select>
+            </div>
             <!-- 참여 인원 -->
             <div class="mb-3">
-				
-
                 <label for="people" class="form-label">참여 인원</label>
                 <input type="number" class="form-control" id="people" name="people" min="1" max="100" required>
             </div>
