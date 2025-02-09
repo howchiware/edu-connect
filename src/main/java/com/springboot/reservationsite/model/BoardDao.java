@@ -7,12 +7,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.springboot.tasteexplorer.model.BoardDo;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository("boardDao")
@@ -75,7 +71,6 @@ public class BoardDao {
 			
 			System.out.println("addLessonBoard() - 수업 추가 완료");
 
-			// 생성된 PK(lessonId) 가져오기
 			int lessonId = jdbcTemplate.queryForObject(generatedKeyQuery, Integer.class);
 			System.out.println("Generated lessonId: " + lessonId);
 
@@ -152,7 +147,7 @@ public class BoardDao {
 		}
 	}
 	
-	//
+	// 수업 정보 조회
 	public LessonDo getLessonById(int num) {
 	    System.out.println("🔍 Fetching lesson from DB (lessontable), num: " + num);
 	    String sql = "SELECT num, title, teacherId, teacherName, description, lessonId FROM lessontable WHERE num = ?";
@@ -197,32 +192,37 @@ public class BoardDao {
 		
 		jdbcTemplate.update(sql, udo.getPwd(), udo.getName(), udo.getNum());
 	}
-
-	public void insertenquiryBoard(EnquirytableBoardDo edo) {
-		System.out.println("insertenquiryBoard");
-		
-		String sql = "INSERT INTO enquirytable (title, content, userId, teacherId) VALUES (?, ?, ?, ?)";
-		jdbcTemplate.update(sql, edo.getTitle(), edo.getContent(), edo.getUserId(), edo.getTeacherId());
-
-	}
 	
+	// 강사 메시지 전달
 	public void teachermessageBoard(EnquirytableBoardDo edo) {
 		System.out.println("teachermessageBoard");
 		
-		String sql = "insert into enquirytable (title_teacher, content_teacher, userId, teacherId) values (?, ?, ?, ?)";
-		jdbcTemplate.update(sql, edo.getTitle_teacher(), edo.getContent_teacher(), edo.getUserId(), edo.getTeacherId());
+		String sql = "insert into enquirytable (title_teacher, content_teacher, userId, teacherId, lessonId) values (?, ?, ?, ?, ?)";
+		jdbcTemplate.update(sql, edo.getTitle_teacher(), edo.getContent_teacher(), edo.getUserId(), edo.getTeacherId(), edo.getLessonId());
 	}
-	
+
+	// 수강생 메시지 전달
+	public void insertenquiryBoard(EnquirytableBoardDo edo) {
+		System.out.println("insertenquiryBoard");
+		
+		String sql = "INSERT INTO enquirytable (title, content, userId, teacherId, lessonId) VALUES (?, ?, ?, ?, ?)";
+		jdbcTemplate.update(sql, edo.getTitle(), edo.getContent(), edo.getUserId(), edo.getTeacherId(), edo.getLessonId());
+
+	}
+
+	// 특정 강사의 teacherId에 해당하는 모든 문의사항 조회
 	public List<EnquirytableBoardDo> getEnquiriesByTeacherId(String teacherId) {
 	    String sql = "SELECT * FROM enquirytable WHERE teacherId = ?";
 	    return jdbcTemplate.query(sql, new Object[] { teacherId }, new BeanPropertyRowMapper<>(EnquirytableBoardDo.class));
 	}
 	
+	// 특정 사용자의 userId에 해당하는 모든 문의사항 조회
 	public List<EnquirytableBoardDo> getEnquiriesByUserId(String userId) {
 	    String sql = "SELECT * FROM enquirytable WHERE userId = ?";
 	    return jdbcTemplate.query(sql, new Object[] { userId }, new BeanPropertyRowMapper<>(EnquirytableBoardDo.class));
 	}
 	
+	// 특정 문의사항 조회. enquirytable에서 조회
 	public EnquirytableBoardDo getEnquiryByNum(int num) {
 	    String sql = "SELECT * FROM enquirytable WHERE num = ?";
 	    
@@ -239,14 +239,15 @@ public class BoardDao {
 	    System.out.println("lessonmodifyBoard()");
 
 	    String sql = "UPDATE lessontable SET photo=?, photoPath=?, title=?, description=?, time=?, people=? WHERE num=?";
-	    System.out.println("SQL Query: " + sql);  // SQL 쿼리 확인
+	    System.out.println("SQL Query: " + sql);
 	    System.out.println("Parameters: " + ldo.getPhoto() + ", " + ldo.getPhotoPath() + ", " + ldo.getTitle() + ", " + ldo.getDescription() + ", " + ldo.getTime() + ", " + ldo.getPeople() + ", " + ldo.getNum());
 	    
 	    int rowsAffected = jdbcTemplate.update(sql, ldo.getPhoto(), ldo.getPhotoPath(), ldo.getTitle(), ldo.getDescription(), ldo.getTime(), ldo.getPeople(), ldo.getNum());
 	    
-	    System.out.println("Rows Affected: " + rowsAffected); // 업데이트된 행 수 출력
+	    System.out.println("Rows Affected: " + rowsAffected);
 	}
 	
+	// 수업의 사진과 경로 조회
 	public LessonDo getLessonByNum(int num) {
 	    String sql = "SELECT photo, photoPath FROM lessontable WHERE num = ?";
 	    return jdbcTemplate.queryForObject(sql, new Object[]{num}, (rs, rowNum) -> {
@@ -257,14 +258,6 @@ public class BoardDao {
 	    });
 	}
 
-	
-	
-
-
-
-
-
-	
 	// 전체 레코드
 	public List<LessonDo> getBoardList() {
 	    System.out.println("getBoardList()");
@@ -309,6 +302,8 @@ public class BoardDao {
 
 	}
 	*/
+	
+	// 특정 수업 정보 조회
 	public LessonDo getBoard(LessonDo temp) {
 	    System.out.println("getBoard()");
 
@@ -316,7 +311,6 @@ public class BoardDao {
 	    
 	    Object[] args = {temp.getNum()};
 	    
-	    // num 값 출력해서 확인
 	    System.out.println("Fetching lesson with num: " + temp.getNum());
 
 	    return jdbcTemplate.queryForObject(sql, args, new LessonRowMapper());

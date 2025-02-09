@@ -25,7 +25,7 @@ function previewImage(event) {
 
         if (output && container) {
             output.src = reader.result;
-            container.style.display = "block"; // 보이도록 설정
+            container.style.display = "block";
         } else {
             console.log("미리보기 요소가 존재하지 않습니다.");
         }

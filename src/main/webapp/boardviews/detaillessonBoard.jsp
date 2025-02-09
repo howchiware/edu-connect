@@ -60,12 +60,13 @@
     <div class="container">
         <h2 onclick="location.href='mainBoard.do'">✌️ 수업 예약 사이트</h2>
 
+		<!-- 추후 추가 예정
         <div class="section photo">
-			<img src="${pageContext.request.contextPath}/images/${lessontable.photoPath}" alt="수업 이미지">
+			<p>수업 이미지 경로: ${pageContext.request.contextPath}/images/${lessontable.photoPath}</p>
+			<img src="${pageContext.request.contextPath}${lessontable.photoPath}" alt="수업 이미지">
         </div>
+		-->
 
-
-		<p>수업 이미지 경로: ${pageContext.request.contextPath}/images/${lessontable.photoPath}</p>
 
 
         <div class="section details">
@@ -74,6 +75,9 @@
             <div><strong>강사:</strong> ${lesson.teacherName}</div>
             <div><strong>설명:</strong> ${lesson.description}</div>
         </div>
+		<div>Lesson ID: ${lesson.lessonId}</div>
+		<div>Login ID: ${sessionScope.loginId}</div>
+
 
         <div class="section board">
             <h3>문의 작성</h3>

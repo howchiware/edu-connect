@@ -12,22 +12,42 @@
 	<!-- 부트스트랩 Js 라이브러리-->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     
-	<title></title>
+	<title>회원가입</title>
 	<style>
-		body {
-			
-		}
-		
-
+	    body {
+	        background-color: #f8f9fa;
+	        font-family: Arial, sans-serif;
+	    }
+	    .container {
+	        max-width: 1080px;
+	        margin: auto;
+	    }
+	    .card {
+	        background: white;
+	        border-radius: 10px;
+	        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	        padding: 10px;
+	        margin-bottom: 20px;
+	    }
+	    .navbar {
+	        background-color: #ffffff !important;
+	        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	    }
+	    h2 {
+	        margin-bottom: 20px;
+	        color: #333;
+	    }
+	    .btn {
+	        border-radius: 5px;
+	    }
 	</style>
 </head>
 <body>
 	
-	<div class="container-fluid">
-	  <a class="navbar-brand" href="#">
-	    <img src="/images/logo.png" alt="Logo" width="30" height="24" class="d-inline-block align-text-top" onclick="location.href='mainBoard.do'">
-	    MainBoard
-	  </a>
+	<div class="container-fluid mt-4">
+	    <a class="navbar-brand" href="#">
+	        <p onclick="location.href='mainBoard.do'">✌️ 수업 예약 사이트</p>
+	    </a>
 	</div>
 
 	<form action="joinBoardProc.do" method="post">

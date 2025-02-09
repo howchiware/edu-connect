@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>User Dashboard</title>
+    <title>User Board</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -175,10 +175,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <c:forEach var="enquiry" items="${enquiryList}">
+                        <c:forEach var="answer" items="${answerlist}">
                             <tr>
-                                <td>${enquiry.title_teacher}</td>
-                                <td>${enquiry.content_teacher}</td>
+                                <td>${answer.title_teacher}</td>
+                                <td>${answer.content_teacher}</td>
                                 <td>
                                     <button class="btn btn-primary btn-sm">답변</button>
                                 </td>
@@ -186,7 +186,7 @@
                         </c:forEach>
                         <c:if test="${empty enquiryList}">
                             <tr>
-                                <td colspan="3" class="text-center">문의사항이 없습니다.</td>
+                                <td colspan="3" class="text-center">답변이 없습니다.</td>
                             </tr>
                         </c:if>
                     </tbody>

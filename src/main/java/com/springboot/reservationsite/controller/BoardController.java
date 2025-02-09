@@ -3,20 +3,15 @@ package com.springboot.reservationsite.controller;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -145,7 +139,7 @@ public class BoardController {
                 return "redirect:/loginBoard.do";
             }
 
-            System.out.println("✅ teacherMain.do 실행됨! teacherId: " + teacherId);
+            System.out.println("teacherMain.do 실행됨! teacherId: " + teacherId);
 
             // 강사가 개설한 수업 목록 조회
             List<LessonDo> lessonList = boardDao.getLessonListByTeacherId(teacherId);
@@ -208,7 +202,8 @@ public class BoardController {
         return "loginBoard";
     }
 /*
-    @RequestMapping(value = "/loginBoardProc.do", method = RequestMethod.POST)
+    
+	@RequestMapping(value = "/loginBoardProc.do", method = RequestMethod.POST)
     public String loginBoardProc(UserBoardDo udo, HttpSession session, Model model) {
         UserBoardDo udo1 = boardDao.loginBoard(udo.getId(), udo.getPwd());
         
@@ -281,16 +276,16 @@ public class BoardController {
         if (role != null) {
             switch (role) {
                 case "ADMIN":
-                    return "redirect:/adminmainBoard.do"; // 관리자 페이지로 이동
+                    return "redirect:/adminmainBoard.do";
                 case "TEACHER":
-                    return "redirect:/teachermainBoard.do"; // 강사 페이지로 이동
+                    return "redirect:/teachermainBoard.do";
                 case "USER":
-                    return "redirect:/usermainBoard.do"; // 사용자 페이지로 이동
+                    return "redirect:/usermainBoard.do";
                 default:
-                    return "redirect:/mainBoard.do"; // 예기치 않은 경우 mainBoard.jsp로 이동
+                    return "redirect:/mainBoard.do";
             }
         } else {
-            return "redirect:/loginBoard.do"; // 세션에 role이 없으면 로그인 페이지로 이동
+            return "redirect:/loginBoard.do";
         }
     }
 
@@ -353,10 +348,8 @@ public class BoardController {
 
                 photo.transferTo(saveFile);
 
-                // 파일을 byte 배열로 변환하여 저장
                 byte[] photoBytes = Files.readAllBytes(saveFile.toPath());
-                // 파일을 byte 배열로 바로 변환하여 저장
-                //byte[] photoBytes = photo.getBytes(); 
+
                 ldo.setPhoto(photoBytes);
                 ldo.setPhotoPath("/images/" + fileName);
 
@@ -618,19 +611,16 @@ public class BoardController {
     /*    
     @RequestMapping(value = "/lessonmodifyProcBoard.do", method = RequestMethod.POST)
     public ModelAndView lessonmodifyProcBoard(@Valid LessonDo lessonDo, BindingResult result, ModelAndView mav) {
-        // 파일이 업로드되었는지 확인
+
         if (lessonDo.getPhotoFile() != null && !lessonDo.getPhotoFile().isEmpty()) {
             try {
-                // MultipartFile을 byte[]로 변환
                 byte[] photoBytes = lessonDo.getPhotoFile().getBytes();
-                lessonDo.setPhoto(photoBytes); // byte[]를 LessonDo 객체에 설정
+                lessonDo.setPhoto(photoBytes);
             } catch (IOException e) {
                 e.printStackTrace();
-                // 예외 처리
             }
         }
-        
-        // lessonDo 객체의 필드 값 확인
+
         System.out.println("photo: " + lessonDo.getPhoto());
         System.out.println("photoPath: " + lessonDo.getPhotoPath());
         System.out.println("title: " + lessonDo.getTitle());
@@ -638,9 +628,6 @@ public class BoardController {
         System.out.println("time: " + lessonDo.getTime());
         System.out.println("people: " + lessonDo.getPeople());
 
-
-
-        // lessonDo 객체 저장 등의 처리
         boardDao.lessonmodifyBoard(lessonDo);
 
         mav.setViewName("redirect:teachermainBoard.do");
@@ -656,7 +643,6 @@ public class BoardController {
             return mav;
         }
 
-        // 기존 이미지 유지 로직
         if (lessonDo.getPhotoFile() != null && !lessonDo.getPhotoFile().isEmpty()) {
             try {
                 byte[] photoBytes = lessonDo.getPhotoFile().getBytes();
@@ -668,7 +654,6 @@ public class BoardController {
                 e.printStackTrace();
             }
         } else {
-            // 기존 데이터 유지
             LessonDo existingLesson = boardDao.getLessonByNum(lessonDo.getNum());
             lessonDo.setPhoto(existingLesson.getPhoto());
             lessonDo.setPhotoPath(existingLesson.getPhotoPath());
@@ -680,7 +665,6 @@ public class BoardController {
     }
 */
 
-    
     @RequestMapping(value = "/lessonmodifyProcBoard.do", method = RequestMethod.POST)
     public ModelAndView lessonmodifyProcBoard(@Valid LessonDo lessonDo, BindingResult result, ModelAndView mav) {
         if (result.hasErrors()) {
@@ -697,14 +681,14 @@ public class BoardController {
                 String uploadDir = "C:/haeun_java_workspace/spring/workspace/reservationsite/src/main/resources/static/images/";
                 File uploadFolder = new File(uploadDir);
                 if (!uploadFolder.exists()) {
-                    uploadFolder.mkdirs(); // 디렉토리가 없으면 생성
+                    uploadFolder.mkdirs();
                 }
 
                 // 파일 저장
                 String fileName = lessonDo.getPhotoFile().getOriginalFilename();
                 String filePath = uploadDir + fileName;
                 File file = new File(filePath);
-                lessonDo.getPhotoFile().transferTo(file); // 파일 저장
+                lessonDo.getPhotoFile().transferTo(file);
 
                 // DB에 저장될 경로 설정
                 String photoPath = "/images/" + fileName;
@@ -730,6 +714,8 @@ public class BoardController {
     @RequestMapping(value = "/insertenquiryBoard.do")
     public String insertenquiryBoard() {
         System.out.println("insertenquiryBoard()");
+        
+
         return "insertenquiryBoard";
     }
 
@@ -745,7 +731,9 @@ public class BoardController {
 
         edo.setUserId(loginUser.getId());
 
+
         boardDao.insertenquiryBoard(edo);
+        System.out.println("LessonId: " + edo.getLessonId());
 
         return "redirect:mainBoard.do";
     }
